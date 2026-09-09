@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>Data Lineage Policy enforcement</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/System_Design/Scalable/DataLineage_PolicyEnforcement" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Scalable/DataLineage_PolicyEnforcement"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <link rel="stylesheet" href="/css/mermaid.css" />
@@ -33,216 +36,160 @@
 
     <aside class="sidebar">
       <a href="#req">What</a>
+      <a href="#how">How Windows client captures events</a>
       <a href="#hld">HLD</a>
       <ul>
-        <li><a href="#bd">Block Diagram</a></li>
+        <li><a href="#local">Policy decisions are taken locally</a></li>
+        <li>
+          <a href="#cloud">Data sent to cloud for Creating Lineage graph</a>
+        </li>
       </ul>
     </aside>
 
     <article style="margin-left: 200px">
       <h1 id="req">Data Lineage Policy enforcement</h1>
       <p>
+        <b>Lineage:</b> the series of families that somebody comes from
+        originally<br />
         Every activity is sent by Windows Agent to Cloud, so that inspection can
         be done<br />
         Policy enforcement and lineage Graph will constructed using every
-        activity.<br /><br />
-        <b>Lineage:</b> the series of families that somebody comes from
-        originally
+        activity.
       </p>
 
-      <h1 id="hld">HLD</h1>
       <h2 id="how">How cyberhaven Laptop client captures the events</h2>
-      <pre><code>
-                    LAPTOP
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│  Chrome                    Claude Code          │
-│    │                           │                │
-│    │                           │                │
-│    └──────────────┐  ┌─────────┘                │
-│                   │  │                          │
-│              OS-level events                   │
-│                   │  │                          │
-│             Cyberhaven Agent                   │
-│                   │                             │
-│                   +---- Browser Extension       │
-│ETW on Windows, 
-| Endpoint Security Framework on macOS, 
-| and eBPF on Linux                               │
-└─────────────────────────────────────────────────┘
-
-Chrome
-   |
-   | Upload request / file access
-   v
-Cyberhaven endpoint enforcement
-   |
-   +---- inspect/context/policy
-   |
-   +---- ALLOW ─────────────> Box
-   |
-   +---- BLOCK
-      </code></pre>
-
-      <h2>Policy decisions are taken locally by cyberhaven client</h2>
+      <p>Kernel-level drivers, Browser extensions/hooks, System API</p>
       <table>
         <tr>
+          <th>OS</th>
+          <th>Event</th>
+          <th>How</th>
+        </tr>
+        <tr>
+          <td>Windows</td>
+          <td>File uploaded on Chrome</td>
+          <td>Brower extensions</td>
+        </tr>
+        <tr>
+          <td>Windows</td>
+          <td>FTP sending file</td>
           <td>
-            <pre><code>Tenant Admin
-     |
-     | Create DLP / AI security policy
-     v
-Cyberhaven Cloud
-     |
-     | Policy distribution
-     v
-Endpoint Agent
-     |
-     | Local policy/context
-     v
-Runtime activity</code></pre>
+            Agent hooks into network socket operations<br />
+            WFP - Windows Filtering Platform, Minifilter drivers
           </td>
+        </tr>
+        <tr>
+          <td>Linux</td>
+          <td>FTP sending file</td>
           <td>
-            <pre><code>                 CYBERHAVEN CLOUD
-       ┌────────────────────────────────┐
-       │                                │
-       │ Tenant Policy                  │
-       │ Data Classification            │
-       │ Data Lineage                   │
-       │ Risk / Analytics               │
-       │ Central Policy Management      │
-       │                                │
-       └───────────────┬────────────────┘
-                       │
-                policy/config/context
-                       │
-                       ↓
-               ENDPOINT AGENT
-       ┌────────────────────────────────┐
-       │ Local observation              │
-       │ Local context                  │
-       │ Local enforcement              │
-       │ Browser integration            │
-       └───────────────┬────────────────┘
-                       │
-                actual user action
-                       │
-             ┌─────────┼─────────┐
-             ↓         ↓         ↓
-           Box      GitHub     USB</code></pre>
+            Linux Netfilter/eBPF ((Extended Berkeley Packet Filter) and kernel
+            modules to monitor system calls, file access, and socket activity
+            seamlessly without destabilizing the kernel)
           </td>
         </tr>
       </table>
 
-      <h2 id="bd">Block Diagram</h2>
-      <div class="mermaid-wrap">
-        <pre class="mermaid">
-flowchart TB
+      <h3>What telemetry data Need to be sent?</h3>
+      <p>user is uploading file to box.com after download from github.com</p>
+      <pre><code>{
+  "source": "github.com"                                    //Where did the data come from?
+  "action": "Copy/Paste/Print/Network Upload"               //What is happening to the data?
+  "actor":  "Userid/ProcessName/path/device state/time"     //Who is doing it?
+  "destination": "box.com/FTP/USB drive"                    //Where is it going?
+  "classification": "code/financial record"                 //What is inside the data?
+}</code></pre>
 
-    Admin["Security Admin"]
-
-    subgraph Tenant["Enterprise Tenant"]
-        Policy["Cyberhaven Policy Engine"]
-        Classification["Data Classification"]
-        Risk["AI Risk / Context Engine"]
-        Lineage["Data Lineage Graph"]
-        Analytics["Security Console / Analytics"]
-    end
-
-    subgraph Endpoint["Developer Endpoint"]
-        Agent["Cyberhaven Endpoint Agent"]
-
-        IDE["IDE / CLI"]
-        AI["AI Agent\nClaude Code / Copilot / Codex"]
-        Files["Source Code / Sensitive Files"]
-        MCP["Local MCP Server"]
-    end
-
-    SaaS["Enterprise SaaS / Cloud / Tools"]
-
-    Admin --> Analytics
-    Analytics --> Policy
-
-    Files --> AI
-    IDE --> AI
-    AI --> MCP
-    AI --> SaaS
-
-    Agent -. data events .-> Classification
-    Agent -. lineage events .-> Lineage
-    Agent -. behavior .-> Risk
-
-    Classification --> Policy
-    Lineage --> Policy
-    Risk --> Policy
-
-    Policy -->|Action| Agent
-
-    Agent -->|"ALLOW / WARN / BLOCK"| AI
-        </pre>
-      </div>
-
-      <h2>Sequence Diagram</h2>
-      <h3 id="sd1">AI Agent pushed code with secret</h3>
+      <h1 id="hld">HLD</h1>
+      <p>
+        1. Tenant creates policy, which flows to Windows agent. Policy might
+        have default rules. Cyberhaven agent starts with policy AST<br />
+        2. User downloads test.cpp from github.com. The endpoint agent tags this
+        file in the local data lineage store, recording its provenance (origin:
+        GitHub, classification: source code).<br />
+        3. User attempts to upload test.cpp to box.com<br />
+        4. Cyberhaven agent intercepts the network using OS primitives (like WFP
+        on Windows or browser hooks).<br />
+        5. Agent checks the action against its cached, pre-fetched LocalPolicy
+        tree without making a synchronous cloud call.<br />
+        6. Local policy engine returns an immediate allow or deny decision.<br />
+        7. Telemetry Ingestion: Audit log, Alert is periodically or immediately
+        transmitted for event processing and analytics.
+      </p>
       <div class="mermaid-wrap">
         <pre class="mermaid">
 sequenceDiagram
+    autonumber
+    
+    box Device (Endpoint)
+    actor User as Employee / Browser
+    participant Agent as Cyberhaven Agent<br>(WFP / Hooks)
+    participant Policy@{ "type" : "boundary" } as Local Policy Tree
+    end
 
-    actor Dev as Developer
+    box rgb(255, 245, 238) External Services
+    participant GH as GitHub.com
+    participant Web as Box.com
+    end
 
-    participant CC as Claude Code<br/>(Local AI Agent)
-    participant FS as Local Git Repository
-    participant CA as Cyberhaven<br/>Endpoint Agent
-    participant CH as Cyberhaven Cloud
-    participant DL as Data Lineage
-    participant PE as Policy Engine
-    participant GH as GitHub
+    box rgb(240, 248, 240) Cloud Backend
+    participant PE@{ "type" : "control" } as PolicyEngine
+    participant LB@{ "type" : "control" } as Load Balancer (LB)
+    participant Kafka@{ "type" : "queue" } as Kafka / Ingestion
+    participant Proc@{ "type" : "control" } as Event Processing
+    end
 
-    Dev->>CC: "Fix login bug and create a PR"
+    PE ->> Agent: policy.json
+    Agent ->> Policy: Create local AST<br>policy tree 
+    User->>GH: Download test.cpp
+    Note over Agent: Event Noted
+    GH-->>User: File downloaded
 
-    CC->>FS: Read source files
-    FS-->>CC: Source code
+    User ->> Web: upload test.cpp
+    Note over Agent: Event Noted
+    Agent->>Policy: Query local rules for action
+    Policy-->>Agent: Deny
+    Agent->>User: Block
 
-    CA->>CH: Observe file access / agent activity
-    CH->>DL: Record data lineage
-
-    CC->>FS: Read additional files
-    FS-->>CC: Source + configuration data
-
-    CA->>CH: Observe sensitive-data access
-    CH->>DL: Associate data with Claude Code
-
-    CC->>FS: Modify source code
-    FS-->>CC: Modified files
-
-    CA->>CH: Observe file modifications
-    CH->>DL: Extend lineage
-
-    CC->>FS: git diff / git commit
-
-    CA->>CH: Observe commit activity
-    CH->>DL: Track sensitive data lineage
-
-    CC->>GH: Push branch / create PR
-
-    CA->>CH: Observe outbound data activity
-
-    CH->>PE: Evaluate user + agent + data + destination
-
-    PE->>DL: Query data lineage / sensitivity
-    DL-->>PE: Sensitive enterprise data detected
-
-    PE-->>CH: BLOCK
-
-    CH-->>CA: Enforce policy
-
-    CA-->>CC: Prevent / block prohibited data transfer
-
-    CC-->>Dev: PR blocked: sensitive data policy violation
-
-    CH-->>Dev: Security event / explanation
+    Note over Agent, Proc: 3. Asynchronous Telemetry Pipeline
+    Agent->>LB: Send event metadata / incident snapshot
+    LB->>Kafka: Push event stream
+    Kafka->>Proc: Process logs for<br>global lineage graph<br>& analytics
         </pre>
       </div>
+
+      <h2 id="local">
+        Policy decisions are taken locally by cyberhaven client
+      </h2>
+      <p>
+        Windows Agent pre-fetched policy rules from cloud, hence at start Policy
+        tree is present on agent.<br />
+        These are baseline threat intelligence(default) + tenant specific
+        rules(defined by tenant).
+      </p>
+
+      <pre><code>Tenant Admin(Policy UI)
+     |
+     | DLP Rules(Default) +
+     | Tenant write his own rule
+     v
+Policy engine
+     |
+     |policy.json
+     v
+Cyberhaven Endpoint Agent
+  [Create its AST]
+Allow/Deny Runtime</code></pre>
+
+      <h2 id="cloud">Data sent to cloud for Creating Lineage graph</h2>
+      <p>
+        Not everything is sent to cloud. Data is sent in batches.<br />
+        For example: policy violations are sent
+      </p>
+      <img
+        src="/images/System_Design/Cyberhaven_Product_Architecture.png"
+        alt="Product Architecture"
+        style="width: 900px; height: 800px"
+      />
     </article>
     <script type="module" src="/scripts/mermaid-init.js"></script>
     <script src="/scripts/prism.js"></script>

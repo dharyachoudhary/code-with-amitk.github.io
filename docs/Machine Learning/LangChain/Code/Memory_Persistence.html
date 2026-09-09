@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Memory Persistence</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Machine%20Learning/LangChain/Code/Memory_Persistence.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+    <!-- Add any necessary CSS and JavaScript files -->
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Machine Learning/LangChain/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar"></aside>
+
+    <div style="margin-left: 200px">
+      <h1 id="what">Memory Persistence in Agent</h1>
+      <p>
+        Default created agent does not remember the conversation. For example if
+        I tell agent "My name is X" and then later ask my name, agent will not
+        remember it.<br />
+        We can create a thread_id and pass that to agent which represents entire
+        conversation to rememember.
+      </p>
+
+      <h2>How Memory is Persisted</h2>
+      <p>
+        When we compile an agent with a checkpointer (like InMemorySaver),
+        LangGraph wraps the execution flow in a state machine database loop.
+      </p>
+      <pre><code>[ Client Request ] ── (thread_id: "1", new_message)
+                                 │
+                                 ▼
+                     ┌──────────────────────┐
+                     │     Checkpointer     │
+                     └──────────┬───────────┘
+                                │ Fetch latest state for thread_id "1"
+                                ▼
+                   ┌──────────────────────────┐
+                   │    Current State (List)  │
+                   │  - Human: I am Amit...   │
+                   │  - AI: Nice to meet...   │
+                   │  + Human: What's my color│ <-- Appended
+                   └────────────┬─────────────┘
+                                │
+                                ▼
+                     ┌──────────────────────┐
+                     │    LLM Invocation    │
+                     └──────────┬───────────┘
+                                │
+                                ▼
+                     ┌──────────────────────┐
+                     │     Checkpointer     │
+                     └──────────────────────┘
+                   Save updated state back to "1"
+</code></pre>
+    </div>
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/common.js"></script>
+  </body>
+</html>

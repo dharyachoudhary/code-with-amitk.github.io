@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Data_Structures/Trees/Types_of_Trees.html"
+    />
+    <title>Types of Trees</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Data_Structures/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="#what">Tree?</a>
+      <ul>
+        <li><a href="#binary">Binary tree</a></li>
+        <li><a href="#full">Full binary tree</a></li>
+        <li><a href="#complete">Complete binary tree</a></li>
+        <li><a href="#perfect">Perfect binary tree</a></li>
+        <li><a href="#bst">Binary search tree</a></li>
+        <li><a href="#sum">Sum tree</a></li>
+        <li><a href="#mtree">M-ary tree</a></li>
+        <ul>
+          <li><a href="#btree">B Tree</a></li>
+          <li><a href="#bplus-tree">B+ Tree</a></li>
+        </ul>
+      </ul>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="what">Tree?</h1>
+      <p>
+        A <b>tree</b> is a connected graph with no cycles:<br />
+        &ensp; 1 root<br />
+        &ensp; Every node has exactly one parent.
+      </p>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Rule (one line)</th>
+        </tr>
+        <tr>
+          <td><a href="#binary">Binary</a></td>
+          <td>Each node has at most <b>2</b> children</td>
+        </tr>
+        <tr>
+          <td><a href="#full">Full</a></td>
+          <td>Every node has <b>0 or 2</b> children (never 1)</td>
+        </tr>
+        <tr>
+          <td><a href="#complete">Complete</a></td>
+          <td>Filled left-to-right; only last level may be short</td>
+        </tr>
+        <tr>
+          <td><a href="#perfect">Perfect</a></td>
+          <td>Full + complete; all leaves on the same level</td>
+        </tr>
+        <tr>
+          <td><a href="#bst">BST</a></td>
+          <td>Left &lt; node &lt; right (search tree)</td>
+        </tr>
+        <tr>
+          <td><a href="#sum">Sum tree</a></td>
+          <td>Node value = sum of left subtree + right subtree</td>
+        </tr>
+        <tr>
+          <td><a href="#mtree">M-ary / M-tree</a></td>
+          <td>Each node has at most <b>M</b> children (not only 2)</td>
+        </tr>
+      </table>
+
+      <h2 id="binary">Binary tree</h2>
+      <p>Each node has at most 2 children: left and right.</p>
+      <pre><code>      
+      1                 1
+     / \               /
+    2   3             2
+                     /
+                    3   ← this is also a binary tree</code></pre>
+
+      <h2 id="full">Full binary tree (proper / 2-tree)</h2>
+      <p>
+        Every node has 0 children OR exactly 2 children.<br />
+        Filling of nodes should be done from LEFT TO RIGHT.
+      </p>
+      <table>
+        <tr>
+          <td>
+            Full
+            <pre><code>
+      a
+     / \
+    b   c
+   / \
+  d   e</code></pre>
+          </td>
+          <td>
+            Not full (Not filled from left to right)
+            <pre><code>      a
+     / \
+    b   c
+       /
+      d</code></pre>
+          </td>
+        </tr>
+      </table>
+
+      <h2 id="complete">Complete binary tree</h2>
+      <p>Every node have 0 or children.</p>
+      <table>
+        <tr>
+          <td>
+            Complete
+            <pre><code>        a
+       / \
+      b   c
+     / \
+    d   e</code></pre>
+          </td>
+          <td>
+            Not complete (gap on the left of last level)
+            <pre><code>        a
+       / \
+      b   c
+           \
+            d</code></pre>
+          </td>
+        </tr>
+      </table>
+      <p>
+        Full ≠ complete. A full tree can have a hole on the last level. A
+        complete tree can have a node with only a left child (the last node).
+      </p>
+
+      <h2 id="perfect">Perfect binary tree</h2>
+      <p>
+        <b>Full and complete</b>, and every leaf is at the <b>same depth</b>.
+        Every internal node has two children. Node count is always
+        <code>2<sup>h+1</sup> − 1</code>.
+      </p>
+      <table>
+        <tr>
+          <td>
+            Perfect (height 1)
+            <pre><code>      a
+     / \
+    b   c</code></pre>
+          </td>
+          <td>
+            Perfect (height 2)
+            <pre><code>        a
+       / \
+      b   c
+     / \ / \
+    d  e f  g</code></pre>
+          </td>
+        </tr>
+      </table>
+
+      <h2 id="bst">Binary search tree (BST)</h2>
+      <p>
+        A binary tree with an <b>order</b> on values: everything in the left
+        subtree is <b>&lt;</b> the node, everything on the right is
+        <b>&gt;</b> the node. Search walks left or right — O(log n) if the tree
+        is reasonably balanced, O(n) if it becomes a stick.
+      </p>
+      <table>
+        <tr>
+          <td>
+            BST (search 4: 5 → 3 → 4)
+            <pre><code>        5
+       / \
+      3   7
+     / \
+    1   4</code></pre>
+          </td>
+          <td>
+            Binary but <b>not</b> a BST (6 is left of 5)
+            <pre><code>        5
+       / \
+      6   7</code></pre>
+          </td>
+        </tr>
+      </table>
+      <p>
+        AVL / Red-Black trees are BSTs that rotate so they stay balanced. See
+        also
+        <a href="/Data_Structures/Comparison.html">Hash table vs BST</a>.
+      </p>
+
+      <h2 id="sum">Sum tree</h2>
+      <p>
+        A binary tree where each node’s value equals the
+        <b
+          >sum of all values in its left subtree plus all values in its right
+          subtree</b
+        >. An empty child counts as 0. A leaf is a sum tree (both sides empty).
+      </p>
+      <pre><code>          26
+         /  \
+       10    3
+      /  \    \
+     4    6    3
+
+leaf 4:  0 + 0 = 0, leaf itself is OK
+10 = 4 + 6
+3  = 0 + 3
+26 = (10+4+6) + (3+3) = 20 + 6</code></pre>
+      <p>
+        Used in interview checks (“is this tree a sum tree?”) and as a
+        running-total structure, not as a general-purpose search tree.
+      </p>
+
+      <h1 id="mtree">M-ary tree (M-tree)</h1>
+      <p>
+        A node can have up to
+        <b>M</b> children, not 2.<br />
+        Examples:<br />
+        - A filesystem folder tree<br />
+        - A B-tree (used by databases and filesystems) is a
+        <i>sorted, balanced</i> M-ary search tree.
+      </p>
+      <pre><code>M = 3
+            A
+         /  |  \
+        B   C   D
+       / \
+      E   F</code></pre>
+
+      <p>
+        <b>Types of M-ary Trees</b>
+      </p>
+      <table>
+        <tr>
+          <th></th>
+          <th>BTree</th>
+          <th>B+ Tree</th>
+        </tr>
+        <tr>
+          <td>Each Node Store</td>
+          <td>Key, Actual data</td>
+          <td>
+            Key, Child pointers; Actual data lives on leaf nodes<br />
+            Furthermore, all leaf nodes are connected sequentially like a linked
+            list
+          </td>
+        </tr>
+      </table>
+      <h2 id="btree">1. B-Tree (self balanced M-ary search tree)</h2>
+
+      <h2 id="bplus-tree">2. B+ Tree (self balanced M-ary search tree)</h2>
+      <p>
+        Databases store data in B+ trees for efficient retrieval and
+        management.<br />
+        Most of data on same level. Hence depth of tree is less wrt BST & makes
+        efficient wrt BST.<br />
+        BTree is better wrt Disk Access: Since DB uses B-Tree/B+Tree. Search
+        time is still better than disk.<br />
+      </p>
+      <pre><code>struct btree{
+    int *keys;  // An array of keys
+    int t;      // Minimum degree (defines the range for number of keys)
+    BTreeNode **C; // An array of child pointers
+    int n;     // Current number of keys
+    bool leaf; // Is true when node is leaf. Otherwise false
+}    </code></pre>
+      <h3>Insertion Example</h3>
+      <p>
+        Imagine we are inserting employee IDs (1, 2, 3, 4) along with their row
+        data (Data1, Data2, Data3, Data4)<br />
+        Every node capacity = 2 (max 2 keys per node)<br /><br />
+        <b>Step 1: Insert (1,Data1), (2,Data2):</b> Insert 2 entries
+      </p>
+
+      <pre><code>Root Node: 
+[ (1, Data1) | (2, Data2) ]</code></pre>
+
+      <p>
+        <b>Step 2: Insert (3,Data3):</b> Insert 3rd entry leading to Overflow
+        and splitting into a B+ Tree structure<br />
+        NOTICE:<br />
+        &ensp; Middle key (2) is copied upward to form a routing node(ie which
+        does not have data)<br />
+        &ensp; While the actual data stays strictly at the bottom leaf level.
+        The leaves form a horizontal sequence link (--&gt;) to allow for
+        sequential access of data.
+      </p>
+      <pre><code>
+             [ 2 ] //Root Node
+            /      \
+           /        \
+Leaf Nodes: 
+[ (1, Data1) ] ---&gt; [ (2, Data2) | (3, Data3) ]</code></pre>
+    </article>
+
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/search.js"></script>
+    <script src="/scripts/mobile.js"></script>
+  </body>
+</html>

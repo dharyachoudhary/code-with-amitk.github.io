@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>Database Transactions</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/System_Design/Concepts/Databases/Terms/Transactions.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Concepts/Databases/Terms/Transactions.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <link rel="stylesheet" href="/css/mermaid.css" />
@@ -42,9 +45,8 @@
       </ul>
       <a href="#dt">Distributed Transactions</a>
       <ul>
-        <a href="#2pc">2Phase Commit</a>
-        <a href="#features">Features of DT</a>
-        <a href="#problems">Problems with DT</a>
+        <li><a href="#2pc">2Phase Commit</a></li>
+        <li><a href="#saga">Saga design pattern</a></li>
       </ul>
     </aside>
 
@@ -268,87 +270,75 @@ Carol   false
         </tr>
       </table>
 
-      <h2 id="dt">Distributed Transaction</h2>
-      <dl>
-        Example(Customer ordering Pizza)<br />
-        &ensp; To create an order different microservices need to enter related
-        data into THEIR respective databases.<br />
-        &ensp; txn1a,txn1b,txn1c are all part of 1 transaction only. All
-        transactions should be committed together ie part of 1 transaction, if
-        any of transaction(txn1a or txn1b or txn1c) fail other transaction
-        should be reverted.<br />
-        Committing different transactions(txn1a, txn1b, txn1c) into different
-        DBs and all transactions(txn1a + txn1b + txn1c = t1) are part of 1
-        transaction is called
-        <b>DISTRIBUTED TRANSACTION</b>
-        <pre><code class="language-css">
-Customer
-   - Pizza 240/-> createOrder()
-                    |-
-                    |-customer-service --read cust id------>         DB1
-                                    &lt;-----------------
-                    |-Order-service2 --trxn1a(Write order)----->     DB2
-                    |-Kitchen-service3 --trxn1b(Enter item)--->      DB3
-                    |-Accounting-service4 --trxn1c(Create Record)--> DB4
-        </code></pre>
-      </dl>
+      <h1 id="dt">Distributed Transaction</h1>
+      <p>
+        <b>What:</b> A database operation that updates data across 2 or more
+        network seperated databases<br />
+        <b>Features of Distributed Transaction</b><br />
+        &ensp; <u>1. All Commit or All Abort:</u> Either all nodes commit or all
+        nodes abort.<br />
+        &ensp; <u>2. ACID:</u> Distributed transaction should follow ACID
+      </p>
 
-      <h3 id="2pc">
-        2 Phase Commit / 2PC (Way to acheive
-        <a href="#dt">Distributed Transaction</a>)
-      </h3>
+      <h1>Methods to Achieve Distributed Transactions</h1>
+      <h2 id="2pc">1. Two Phase Commit (2PC) (Also called XA Transaction)</h2>
+      <p>
+        External transaction coordinator (e.g., Zookeeper) manages the commit
+        process across multiple databases.<br />
+        This is 1 of method of Consensus
+      </p>
 
-      <h4>XA Transaction / Open XA (eXtended Architecture)</h4>
-      <dl>
-        This is standard for implementing <a href="#2pc">two phase commit</a>,
-        supported by many traditional relational databases (including
-        PostgreSQL, MySQL, DB2, SQL Server, and Oracle)<br />
-        It talks about interfacing with a transaction coordinator(Broker) using
-        C APIs. Microservice should talk to DB using network driver or client
-        library.
-      </dl>
-
-      <h4 id="working">Working of 2PC (A Definite Promise)</h4>
-      <dl>
-        <b>Coordinator</b>
-        - Can be external(Zookeeper) or internal(any microservice)
-      </dl>
       <table>
         <tr>
           <td>
-            <pre><code class="language-css">
-                                                                |-------------- Distributed DB -------------|
-                                                                |                                           |
-              orderSvc(Coordinator)            KitchenSvc     KitchenDB           TransactionSvc       TransactionDB
-  --Pizza 249----->
-                  *********** PHASE-1(Prepare) of 2PC Start ************
-                  ------------Prepare(trxnid=1)-->
-                                                --Check ingredients->
-                                                &lt;----available----
-                                                ---Lock DB--------->
-                                                /// Thread Waiting ///
-                  &lt;-----------Ready--------------
+            Consider a <b>Example of a pizza ordering system:</b><br />
+            &ensp; Where the order service acts as the coordinator, which
+            generates a globally unique transaction ID<br />
+            &ensp; kitchen service and transaction service are participants.<br />
+            <div class="mermaid-wrap">
+              <pre class="mermaid">
+sequenceDiagram
+    actor Client
+    participant OrderSvc@{ "type": "control" } as Order Service<br>acts as COORDINATER
+    participant KitchenSvc@{ "type": "control" } as KitchenSvc
+    participant TxSvc@{ "type": "control" } as TransactionSvc
 
-                  -------------------------------------Prepare(trxnid=1)------------------>
-                                                                                        --Validate payment method->
-                                                                                        &lt;----available----
-                                                                                        ---Lock DB--------->
-                                                                                        /// Thread Waiting ///
-                  &lt;-----------------------------------------Ready-------------------------
-                  *********** PHASE-1 of 2PC End ************
+    box Shards
+        participant KitchenDB@{ "type": "database" } as KitchenDB
+        participant TxDB@{ "type": "database" } as TransactionDB
+    end
 
-                  *********** PHASE-2(Commit) of 2PC Start ************
-                  ------------Commit(trxnid=1)-->
-                                                --Write into DB->
-                                                // Lock Released
-                  &lt;-----------Done--------------
+    Client->>OrderSvc: --Pizza 249-->
 
-                  -------------------------------------Prepare(trxnid=1)------------------>
-                                                                                        --Write into DB->
-                                                                                        // Lock Released
-                  &lt;-----------------------------------------Done-------------------------
-                  *********** PHASE-2 of 2PC End ************
-          </code></pre>
+    Note over OrderSvc, TxDB: PHASE-1 (Coordinator asks to Lock DB)
+    Note over OrderSvc: Generate globally<br>unique transactionId=1
+    OrderSvc->>KitchenSvc: Prepare(trxnid=1)
+    KitchenSvc->>KitchenDB: Check ingredients
+    KitchenDB-->>KitchenSvc: available
+    KitchenSvc->>KitchenDB: Lock DB
+    Note over KitchenSvc: DB Locked
+    KitchenSvc-->>OrderSvc: Ready
+
+    OrderSvc->>TxSvc: Prepare(trxnid=1)
+    TxSvc->>TxDB: Validate payment method
+    TxDB-->>TxSvc: available
+    TxSvc->>TxDB: Lock DB
+    Note over TxSvc: DB Locked
+    TxSvc-->>OrderSvc: Ready
+
+    Note over OrderSvc, TxDB: PHASE-2 (Coordinator confirms to Commit)
+
+    OrderSvc->>KitchenSvc: Commit(trxnid=1)
+    KitchenSvc->>KitchenDB: Write into DB
+    Note over KitchenSvc: Lock Released
+    KitchenSvc-->>OrderSvc: Done
+
+    OrderSvc->>TxSvc: Commit(trxnid=1)
+    TxSvc->>TxDB: Write into DB
+    Note over TxSvc: Lock Released
+    TxSvc-->>OrderSvc: Done
+        </pre>
+            </div>
           </td>
           <td>
             <b>Steps</b><br />
@@ -385,28 +375,121 @@ Customer
         </tr>
       </table>
 
-      <h3 id="features">Features of Distributed Transaction</h3>
-      <dl>
-        <b>1. All Commit or All Abort:</b> Either all nodes commit or all nodes
-        abort.<br />
-        <b>2. A transaction commit is IRREVOCABLE:</b> ie once node decides to
-        commit, then there is no turning back. Reason: Once data has been
-        committed, it becomes visible to other transactions, and thus other
-        clients may start relying on that data. Suppose 1 microservice dies &
-        fails to commit, then this service should commit again once it comes
-        back, ie never go back.
-      </dl>
-
-      <h3 id="problems">Problems with Distributed Transaction</h3>
+      <h3 id="problems">Problems with 2PC</h3>
       <dl>
         <b>1. Not supported by modern technologies</b> Eg: NoSQL DB does not
         support. Apache Kafka, Cassandra, RabbitMQ does not support.<br />
-        <b>2. DT is form of Synchronous RPC:</b>
-        Look at <a href="#working">Working on 2PC</a> Kitchen microservice is
-        waiting, holding locks If coordinator crashes → Kitchen blocks
-        indefinitely and even cannot write other transactions<br />
+        <b>2. 2PC is form of Synchronous RPC:</b>
+        Kitchen microservice is waiting, holding locks If coordinator crashes →
+        Kitchen blocks indefinitely and even cannot write other transactions<br />
         &ensp; Solution: Saga Design Pattern
       </dl>
+
+      <h2 id="saga">2. Saga Design Pattern</h2>
+      <p>
+        <b>Dictionary Meaning of Saga:</b><br />
+        &ensp; A long, epic story or narrative detailing a series of adventures,
+        events, and twists over time. Just like an epic story has multiple
+        chapters that unfold sequentially—where a plot twist or failure in
+        chapter three might force the characters to backtrack or undo what they
+        did in chapter one<br />
+        &ensp; Saga design pattern is carried over multiple microservices, where
+        each microservice does its own local DB transaction, listen on message &
+        also compensate or revert the DB write if something goes wrong.<br /><br />
+
+        <b>Where Saga can be used?</b><br />
+        1. Distributed database updates(ie
+        <a href="#dt">Distributed Transactions</a>)<br />
+        2. Anywhere in long-running business process or workflow that spans
+        multiple isolated systems that cannot use standard ACID transactions.<br />
+        Examples:<br />
+        &ensp; E-Commerce Checkout & Fulfillment: Many microsservices, many
+        databases<br />
+        &ensp; Travel Booking: Flight, Hotel, Car Rental all are separate
+        systems<br />
+        &ensp; Loan Application: Credit Check, Risk Assessment, Document
+        Verification. All are separate systems<br /><br />
+
+        <b>Concept of Saga</b><br />
+        - A Saga is an architectural pattern for managing distributed
+        transactions across multiple independent microservices without locking
+        data globally.<br />
+        - Microservice 1 performs a DB/Shard write to its database and publishes
+        an event to Kafka, Microservice 2 consume this event to execute the next
+        local write(on its DB).<br />
+        - If any step down the line fails, the saga sequentially triggers
+        compensating transactions (undo actions) via event messages to maintain
+        eventual consistency across the system.<br /><br />
+
+        <b>Twitter System Example</b>
+      </p>
+
+      <table>
+        <tr>
+          <td>
+            <div class="mermaid-wrap">
+              <pre class="mermaid">
+sequenceDiagram
+autonumber
+
+    actor Client
+    participant GLB@{ "type": "boundary", "alias": "Global LB&lt;br/&gt;Regional LB" }
+    box Pink Datacenter
+    participant LB@{ "type": "boundary", "alias": "K8s Ingress" }
+    participant Pod@{ "type": "control", "alias": "Recvr Pod" }
+    participant Shard_01@{ "type": "database", "alias": "Shard1" }
+    participant Shard_1@{ "type": "database", "alias": "Shard2" }
+    participant Kafka@{ "type": "queue", "alias": "Kafka Queue" }
+    participant Worker@{ "type": "control", "alias": "Consumer Pod" }
+    participant Shard_02@{ "type": "database", "alias": "Downstream&lt;br/&gt;Timeline&lt;br/&gt;Shard" }
+    end
+
+    Client->>GLB: HTTP POST /tweet<br>(userId: 9999, content: "Hello")
+    GLB->>LB: POST Tweet
+    LB->>Pod: POST Tweet
+    
+    Note over Pod: In Memory Calculation<br>Same for every Pod<br><br>shardId = hash(userId)%num of Shards
+    
+    Pod->>Shard_01: Write Tweet to Shard_01
+    Shard_01-->>Pod: Acknowledge Write
+    
+    Pod->>Kafka: Topic:TweetCreated<br>Message(userId: 9999)
+    Pod-->>Client: 200 OK (Response sent to user)
+
+    Note over Kafka, Shard_02: Asynchronous Saga / Fan-out Phase
+    Kafka->>Worker: Topic:TweetCreated<br>Message(userId: 9999)
+    Note over Worker: In Memory Calculation<br>Same for every Pod<br><br>shardId = hash(userId)%num of Shards<br>OR<br>Read from event metadata
+    Worker->>Shard_02: Write to User Timeline Shard
+    Shard_02-->>Worker: Acknowledge
+              </pre>
+            </div>
+          </td>
+          <td>
+            (Steps 1–4)<br />
+            &ensp; Rather than consulting a central coordinator, the Recvr Pod
+            independently computes the destination shard using local CPU memory
+            (hash(userId) % num of Shards).<br />
+            &ensp; This eliminates network bottlenecks and allows any stateless
+            pod to process the incoming request identically without external
+            lookups.<br />
+
+            (Steps 5–6)<br />
+            &ensp; The pod directly writes the tweet to Shard1 (Shard_01) and
+            receives an acknowledgment<br />
+
+            (Steps 7–8)<br />
+            &ensp; Instead of Pod publishes a TweetCreated event to Kafka and
+            immediately returns a 200 OK response to the client.<br />
+
+            (Steps 9–11)<br />
+            &ensp; Consumer Pod picks up the event from Kafka to execute the
+            next phase of the workflow. &ensp; It determines the target shard
+            (either via local hash calculation or by reading metadata directly
+            from the event payload) and writes the data to the Downstream
+            Timeline Shard (Shard_02).
+          </td>
+        </tr>
+      </table>
     </article>
     <script src="/scripts/prism.js"></script>
     <script type="module" src="/scripts/mermaid-init.js"></script>

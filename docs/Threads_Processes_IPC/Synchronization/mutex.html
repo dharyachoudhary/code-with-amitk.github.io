@@ -33,6 +33,7 @@
     <aside class="sidebar">
       <!--See .sidebar in styles.css-->
       <a href="#what">Mutex?</a>
+      <a href="#internal">Internal Implementation</a>
       <a href="#prob">Problems in mutex?</a>
       <a href="#create">Creating Mutex</a>
       <ul>
@@ -56,15 +57,17 @@
       <dl>
         if 1 thread is in CS other cannot enter, Return value: None, Parameters:
         None
-        <br />
-        <b>How Mutex is internally implemented?</b><br />
-        &ensp; Mutex is kernel maintained lock(a data structure) that we set
+      </dl>
+
+        <h1>How Mutex is internally implemented?</h1>
+      <dl>
+        Mutex is kernel maintained lock(a data structure) that we set
         before using a shared resource and release after using it.<br />
-        &ensp; Mutex keeps track of who currently has exclusive access to the
+        Mutex keeps track of who currently has exclusive access to the
         data.<br />
-        &ensp; When the lock is set, no other thread can access the locked
+        When the lock is set, no other thread can access the locked
         region of code. <br />
-        &ensp; Mutex lock will only be released by the thread who locked it.
+        Mutex lock will only be released by the thread who locked it.
         <br />
 
         <b>Wake up?</b><br />
@@ -117,9 +120,9 @@
             2. All times keeping in mind that data should not handled outside
             mutex guards<br />
             <pre><code class="language-css">
-#include &lt;iostream>
-#include &lt;thread>
-#include &lt;mutex>
+#include &lt;iostream&gt;
+#include &lt;thread
+#include &lt;mutex&gt;
 
 std::mutex m;
 int a = 1;
@@ -159,19 +162,19 @@ int var = 0;
 mutex m;
 void fun(int tid) {
     m.lock();
-    cout << "tid: " << tid << ", var: " <<  var++ << "\n";
+    cout &lt;&lt; "tid: " &lt;&lt; tid &lt;&lt; ", var: " &lt;&lt;  var++ &lt;&lt; "\n";
     m.unlock();
 }
 int main() {
     int a = 1;
     int num_of_thrs = 5;
     thread t[num_of_thrs];
-    for (auto i = 0; i < num_of_thrs; i++)
+    for (auto i = 0; i &lt; num_of_thrs; i++)
     {
         t[i] = thread(fun, i);
     }
 
-    for (auto i = 0; i < num_of_thrs; i++)
+    for (auto i = 0; i &lt; num_of_thrs; i++)
         t[i].join();
     return 0;
 }
@@ -194,8 +197,8 @@ tid: 2, var: 4
           </td>
           <td>
             <pre><code class="language-css">       <!--posix-->
-#include &lt;pthread.h>
-#include &lt;stdio.h>
+#include &lt;pthread.h&gt;
+#include &lt;stdio.h&gt;
 
 int counter;
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
@@ -285,18 +288,18 @@ mutex m;
 
 void fun(int tid) {
   // unlike mutex, lg.unlock() is not needed
-  lock_guard<mutex> lg(m);
-  cout << "tid: " << tid << ", var: " <<  var++ << "\n";
+  lock_guard &lt;mutex&gt; lg(m);
+  cout &lt;&lt; "tid: " &lt;&lt; tid &lt;&lt; ", var: " &lt;&lt;  var++ &lt;&lt; "\n";
 }
 int main() {
     int a = 1;
     int num_of_thrs = 5;
     thread t[10];
-    for (auto i = 0; i < num_of_thrs; i++) {
+    for (auto i = 0; i &lt; num_of_thrs; i++) {
         t[i] = thread(fun, i);
     }
 
-    for (auto i = 0; i < num_of_thrs; i++)
+    for (auto i = 0; i &lt; num_of_thrs; i++)
         t[i].join();
     return 0;
 }
@@ -333,7 +336,7 @@ void fun(int tid) {
         <pre><code class="language-css">std::mutex mtx;
 void task() {
     // Construct the unique_lock, donot lock mutex immediately
-    std::unique_lock<std::mutex> lock(mtx, std::defer_lock);
+    std::unique_lock &lt;std::mutex&gt; lock(mtx, std::defer_lock);
 
     // Do some work while the mutex is NOT locked...
 

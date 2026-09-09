@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Create Agent using Langchain</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Machine%20Learning/LangChain/Code/Create_agent.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+    <!-- Add any necessary CSS and JavaScript files -->
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Machine Learning/LangChain/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <!-- Sidebar -->
+      <a href="#walk">Walk the code</a>
+      <a href="#init">Initialize Model</a>
+      <a href="#system">system_prompt</a>
+      <a href="#messages">Messages</a>
+      <ul>
+        <li><a href="#systemmsg">SystemMessage</a></li>
+        <li><a href="#humanmsg">HumanMessage</a></li>
+        <li><a href="#aimsg">AIMessage</a></li>
+        <li><a href="#history">Chat history</a></li>
+      </ul>
+    </aside>
+
+    <div style="margin-left: 200px">
+      <h1 id="walk">Create Simple Agent using Langchain</h1>
+      <p>
+        Read this page together with the <b>Code</b>:
+        <a
+          href="https://github.com/code-with-amitk/Code-examples/blob/master/Machine_Learning/Langchain/Code/Predict_Wtih_Injected_Prompt.adoc"
+          target="_blank"
+          >Predict_Wtih_Injected_Prompt.adoc</a
+        >.<br />
+        That file is a small
+        <a href="/Machine Learning/Terms.html#Agent">Agent</a>:<br />
+        &ensp; 1. A
+        <a href="/Machine Learning/ML_Models/Ollama.html">ChatOllama</a>
+        model<br />
+        &ensp; 2. A <a href="#system">system_prompt</a><br />
+        &ensp; 3. A question.<br />
+        LangChain's job is provide a
+        <a href="/Machine Learning/Terms.html#Agent">Agent</a> which can talk to
+        <a href="/Machine Learning/Terms.html#llm">LLM</a>.
+      </p>
+      <p>The code has 3 steps:</p>
+      <table>
+        <tr>
+          <th>Step</th>
+          <th>What it does</th>
+        </tr>
+        <tr>
+          <td>1. Initialize a Model</td>
+          <td>
+            <code>ChatOllama(...)</code> — pick which LLM to call and how it
+            should generate (temperature, tokens, timeout, retries)
+          </td>
+        </tr>
+        <tr>
+          <td>2. Control behaviour</td>
+          <td>
+            Put rules + examples in a <code>system_prompt</code>, wrap it as
+            <code>SystemMessage</code>
+          </td>
+        </tr>
+        <tr>
+          <td>3. Invoke</td>
+          <td>
+            Send <code>[SystemMessage, HumanMessage]</code> to
+            <code>model.invoke()</code>. Reply comes back as
+            <code>AIMessage</code>
+          </td>
+        </tr>
+      </table>
+
+      <h2 id="init">1. Initialize a Model</h2>
+      <p>
+        <code>ChatOllama</code> is the LangChain client for a locally running
+        <a href="/Machine Learning/ML_Models/Ollama.html">Ollama</a> server.
+      </p>
+      <pre><code class="language-css">
+from langchain_ollama import ChatOllama
+
+model = ChatOllama(
+    model="llama3.2:latest",
+    base_url="http://localhost:11434",              #Ollama REST endpoint.
+
+    # Controls randomness of model output. Higher number makes model more creative
+    # 0 → 0.2	Almost deterministic. Same prompt ≈ same answer.
+    # 0.5 → 0.8	Balanced. Normal chat
+    # 1 and above	More random, more invention.	Stories, brainstorming.
+    temperature=1,                              
+    max_tokens=256,      # Max tokens in outputs, making how long output can be
+    timeout=30,          # Max time to wait from Model response
+    max_retries=2        # max retry requests to model
+)
+      </code></pre>
+
+      <h2 id="system">system_prompt</h2>
+      <p>
+        A <b>system prompt</b> is text you send with role <code>system</code>.
+        The user never types it. It is the model's job description: who it is,
+        what rules to follow, and (optionally) worked examples of the style you
+        want.
+      </p>
+      <pre><code class="language-css">
+system_prompt = """
+You are Politician. Predict who will win
+
+User: What is capital of mars?
+Science fiction writer: Marimalas
+
+User: What is capital of Venus?
+Science fiction writer: Venusoila
+"""
+      </code></pre>
+
+      <h2 id="messages">Messages</h2>
+      <p>
+        Chat models do not take a raw string. They take a
+        <b>list of messages</b>. Each message has a role + content. LangChain
+        types are explained on
+        <a href="/Machine Learning/LangChain/Terms.html#lcmessages"
+          >LangChain Messages</a
+        >. The sample uses three of them.
+      </p>
+      <table>
+        <tr>
+          <th>Class</th>
+          <th>Role</th>
+          <th>Who writes it</th>
+          <th>Job</th>
+        </tr>
+        <tr>
+          <td>
+            <a href="#systemmsg"><code>SystemMessage</code></a>
+          </td>
+          <td>system</td>
+          <td>You (developer)</td>
+          <td>Rules, persona, few-shot examples. Hidden from the end user.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="#humanmsg"><code>HumanMessage</code></a>
+          </td>
+          <td>user</td>
+          <td>End user (or your test script)</td>
+          <td>The actual question / next turn.</td>
+        </tr>
+        <tr>
+          <td>
+            <a href="#aimsg"><code>AIMessage</code></a>
+          </td>
+          <td>assistant</td>
+          <td>The model (you can also replay an old reply)</td>
+          <td>Previous model output. Needed to continue a chat.</td>
+        </tr>
+      </table>
+      <pre><code class="language-css">
+from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+
+messages = [
+    SystemMessage(content=system_prompt),
+    HumanMessage(content="What's the capital of the Moon?")
+]
+response = model.invoke(messages)
+# response is an AIMessage
+# response.content == "The capital of the Moon is Lunaria."
+      </code></pre>
+
+      <h3 id="systemmsg">SystemMessage</h3>
+      <p>
+        Wrapper around the <a href="#system">system_prompt</a> string. Always
+        put it first. The model treats this as configuration, not as something
+        the user said.
+      </p>
+      <pre><code class="language-css">
+SystemMessage(content=system_prompt)
+      </code></pre>
+
+      <h3 id="humanmsg">HumanMessage</h3>
+      <p>
+        One user turn. In the sample there is only one:
+        <code>"What's the capital of the Moon?"</code>. In a real chat UI, every
+        time the user types, you append another <code>HumanMessage</code> (and
+        keep the old ones — see <a href="#history">chat history</a>).
+      </p>
+      <pre><code class="language-css">
+HumanMessage(content="What's the capital of the Moon?")
+      </code></pre>
+
+      <h3 id="aimsg">AIMessage</h3>
+      <p>
+        <code>model.invoke(...)</code> <b>returns</b> an <code>AIMessage</code>.
+        <code>.content</code> is the text you print. You also <b>send</b> old
+        <code>AIMessage</code>s back on the next call so the model remembers
+        what it already said.
+      </p>
+      <pre><code class="language-css">
+AIMessage(content="The capital of the Moon is Luna City.")
+      </code></pre>
+      <p>
+        Other fields you will see later (tools, tokens) live on this same object
+        — see
+        <a href="/Machine Learning/LangChain/Terms.html#lcmessages"
+          >AIMessage attributes</a
+        >.
+      </p>
+
+      <h3 id="history">Chat history (multi-turn)</h3>
+      <p>
+        The model has <b>no memory between calls</b>. If you want a follow-up
+        ("tell me more"), you must send the whole conversation again: system +
+        every previous Human/AI turn + the new question.
+      </p>
+      <pre><code class="language-css">
+messages = [
+    SystemMessage(content=system_prompt),
+    HumanMessage(content="What's the capital of the Moon?"),
+    AIMessage(content="The capital of the Moon is Luna City."),
+    HumanMessage(content="Interesting, tell me more about Luna City")
+]
+response = model.invoke(messages)
+      </code></pre>
+      <p>What the model sees:</p>
+      <table>
+        <tr>
+          <th>Turn</th>
+          <th>Object</th>
+          <th>Why it is there</th>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td><code>SystemMessage</code></td>
+          <td>Stay in the fake-capital persona.</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td><code>HumanMessage</code></td>
+          <td>Original question.</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><code>AIMessage("...Luna City.")</code></td>
+          <td>
+            What the model already answered. Without this, "tell me more about
+            Luna City" has no prior name to attach to.
+          </td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><code>HumanMessage("...tell me more...")</code></td>
+          <td>The new user turn.</td>
+        </tr>
+      </table>
+      <p>
+        Drop any of those turns and the model loses context. This list
+        <b>is</b> the agent's short-term memory.
+      </p>
+    </div>
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/common.js"></script>
+  </body>
+</html>

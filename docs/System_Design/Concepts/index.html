@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>System Design</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/System_Design/Concepts" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Concepts"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
   </head>
@@ -43,28 +46,28 @@
         <a href="GCP/Deploy_Docker_Image.html">Deploy docker image on GCP</a
         ><br />
 
-        <b>Components</b>:<br />
-        &ensp; <a href="Components/Cache/">Cache</a><br />
-        &emsp; <a href="/System_Design/Scalable/Distributed_Cache">Redis</a>
-        <font color="red">System Design</font><br />
-        &emsp; memcached<br />
-        &ensp; <a href="Components/CDN/">CDN</a><br />
-        &ensp; <a href="Components/API_Gateway/">API Gateway</a><br />
-        &ensp; <a href="Components/Load Balancer/">Load Balancer</a>(Advantages,
-        Types, Scheduling Algorithms of LB)<br />
+        <b>Components</b>: <a href="Components/Cache/">Cache(</a>
+        <a href="/System_Design/Scalable/Distributed_Cache">Redis</a>
+        <font color="red">System Design</font>, memcached),
+        <a href="Components/CDN/">CDN</a>,
+        <a href="Components/API_Gateway/">API Gateway</a>,
+        <a href="Components/Load Balancer/">Load Balancer</a>(Advantages, Types,
+        Scheduling Algorithms of LB)<br />
 
-        <a href="Consensus/" target="_blank">Consensus Mechanism:</a> Raft,
-        Paxos<br />
-
-        <a href="./Databases/">Databases</a><br />
-
-        Distributed Systems<br />
-        &ensp; <a href="./Terms/Distributed_System/index.html">Types:</a> SaaS,
-        PaaS, iPaas, IaaS, CaaS, FaaS<br />
+        Consensus(<a href="Terms/Consensus/Introduction.html">Introduction</a>,
+        Algorithms(<a href="Terms/Consensus/Algorithms/Paxos.html">Paxos</a>,
+        <a href="Terms/Consensus/Algorithms/Raft.html">Raft</a>,
+        <a href="/Terms/Transactions.html#2pc">2PC</a>))<br />
 
         <b>Containers:</b>
         <a href="Containers/Introduction.html">Container vs VM, Advantages</a>
         <br />
+
+        <a href="./Databases/">Databases</a><br />
+
+        Distributed Systems:
+        <a href="./Terms/Distributed_System/index.html">Types</a>(SaaS, PaaS,
+        iPaas, IaaS, CaaS, FaaS)<br />
 
         <b>git:</b>
         <a href="git/Commands.html">Commands</a>,
@@ -83,10 +86,16 @@
         >,
         <a href="Microservices/Design_Patterns/Circuit_Breaker.html"
           >Circuit Breaker</a
-        >, <a href="Microservices/Design_Patterns/Saga.html">Saga</a>),
+        >,
+        <a href="/System_Design/Concepts/Databases/Terms/Transactions.html"
+          >Saga</a
+        >),
         <a href="Microservices/Event Driven Architecture.html"
           >Event Driven Architecture</a
         ><br />
+
+        <b>Queues:</b> <a href="/System_Design/Scalable/Kafka/">Kafka</a>,
+        <a href="Queues/Redpanda.html">Redpanda</a><br />
 
         <b>Terms</b><br />
         &ensp; Authentication:
@@ -96,10 +105,6 @@
         ><br />
         &ensp; <a href="Terms/CAP_Theorem.html">CAP Theorem</a><br />
         &ensp; <a href="Terms/Terms.html">Cluster</a><br />
-        &ensp; Consensus(<a href="Terms/Consensus/Introduction.html"
-          >Introduction</a
-        >, Algorithms(<a href="Terms/Consensus/Algorithms/Paxos.html">Paxos</a>,
-        <a href="Terms/Consensus/Algorithms/Raft.html">Raft</a>))<br />
         &ensp; <a href="Terms/Terms.html">Reliable, Scalable, Maintainable</a>
 
         <table>

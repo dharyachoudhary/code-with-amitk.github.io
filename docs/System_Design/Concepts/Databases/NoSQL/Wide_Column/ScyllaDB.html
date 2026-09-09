@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+  <head>
+    <title>ScyllaDB</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Concepts/Databases/NoSQL/Wide_Coloumn/ScyllaDB.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/System_Design/Concepts/Databases/">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="what">What is ScyllaDB</a>
+      <a href="#location-example">Location example</a>
+    </aside>
+
+    <main>
+      <article style="margin-left: 200px">
+        <h1 id="what">ScyllaDB (written in C++)</h1>
+        <p>
+          ScyllaDB is a distributed wide-column database compatible with the
+          <a
+            href="/System_Design/Concepts/Databases/NoSQL/Wide_Column/Cassandra.html"
+            >Cassandra</a
+          >
+          API.<br /><br />
+
+          Stores data internally using
+          <a href="/Data_Structures/Trees/LSM_Tree.html">LSM Trees</a><br />
+          noSQL databases scale horizontally due to
+          <a href="/Data_Structures/Trees/LSM_Tree.html#why">LSM Trees</a>,
+          while SQL(<a href="/Data_Structures/Trees/Types_of_Trees.html"
+            >BTree</a
+          >) donot scale horizontally<br />
+          Super fast, it uses:
+          <a href="/Frameworks/Seastar/">Seaster Framework</a><br />
+          C++ has predictable latency as no
+          <a href="/Languages/Programming/C++/CPP_vs_Java.html"
+            >Garbage Collector Pauses</a
+          >
+          wrt Cassandra(written in Java).
+        </p>
+
+        <h2 id="location-example">
+          How ScyllaDB uses <a href="/Frameworks/Seastar/">Seastar</a> framework
+          to store data?
+        </h2>
+        <p>
+          <a href="/Frameworks/Seastar/">Seastar</a> framework binds(CPU
+          affinity) 1 thread per CPU core with no IPC between threads making 1
+          thread as independent server(with its own RAM, disk etc)<br />
+          Shard (in ScyllaDB terminology): An individual CPU core inside a
+          single Node(Physical machine), along with the dedicated RAM and
+          network thread tied to that core<br />
+          When ScyllaDB starts on a server with 10 physical CPU cores, it
+          launches 10 independent engine threads. It uses CPU affinity to lock
+          (bind) Thread 0 to Core 0, Thread 1 to Core 1, and so on.<br />
+        </p>
+        <pre><code>
+|----------------------------Physical Machine-------------------------------------|
+|                                                                                 |
+| RAM |0-25|               |26-50|            |51-75|             |76-100|        |
+|       /\                    /\                /\                  /\            |
+| |---- Core 0 -----| |---- Core 1 -----| |---- Core 2 -----| |---- Core 3 -----| |
+| | Thread 0        | | Thread 1        | | Thread 2        | | Thread 3        | |
+| | Hashes ending 00| | Hashes ending 01| | Hashes ending 02| | Hashes ending 03| |
+| |-----------------| |-----------------| |-----------------| |-----------------| |
+|                                                                                 |
+|---------------------------------------------------------------------------------|
+
+user_id = "Alice" --> |Hash| = 1042 -> 1042 % 4 = 2 (Shard 2)
+
+Thread 2 (pinned to Core 2) processes and writes Alice's location data into Core 2's dedicated RAM buffer.
+        </code></pre>
+      </article>
+    </main>
+    <script src="/scripts/prism.js"></script>
+  </body>
+</html>

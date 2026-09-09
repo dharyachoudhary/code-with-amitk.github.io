@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>C++ vs Java</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/C%2B%2B/CPP_vs_Java.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Languages/Programming/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar"><!--See .sidebar in styles.css--></aside>
+
+    <article style="margin-left: 200px">
+      <h1>C++ vs Java</h1>
+
+      <h2>Key Differences</h2>
+      <table class="comparison-table">
+        <tr>
+          <th scope="col">Aspect</th>
+          <th scope="col">C++</th>
+          <th scope="col">Java</th>
+        </tr>
+        <tr>
+          <th>Speed</th>
+          <td>Higher peak performance as has more predictable latency</td>
+          <td>
+            Less wrt C++ because of unpredictable
+            <a href="/Languages/Programming/Java/Garbage_Collection.html"
+              >Garbage Collector Pauses</a
+            >
+          </td>
+        </tr>
+        <tr>
+          <th>Risks</th>
+          <td>
+            allocation and deallocation, and incorrect manual ownership can
+            cause leaks, use-after-free bugs
+          </td>
+          <td>Fewer memory-lifetime errors</td>
+        </tr>
+        <tr>
+          <th>Use cases</th>
+          <td>
+            Applications that need smaller memory & more control over
+            HW/Memory<br />
+            &ensp; OS, device drivers, firmware, embedded systems, Games,
+            Robotics, Graphics
+          </td>
+          <td>
+            Memory & Speed is not major issue, but system should be stable<br />
+            &ensp; Large enterprise applications, distributed systems, Andriod
+          </td>
+        </tr>
+      </table>
+    </article>
+  </body>
+</html>

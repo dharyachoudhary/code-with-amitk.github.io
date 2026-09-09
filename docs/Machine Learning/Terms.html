@@ -2,9 +2,13 @@
 <html>
   <head>
     <title>Machine Learning Terms</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Machine%20Learning/Terms.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Machine%20Learning/Terms.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
+    <link rel="stylesheet" href="/css/mermaid.css" />
   </head>
 
   <body>
@@ -39,6 +43,7 @@
         <li>Generative AI</li>
       </ul>
       <a href="#ActivationFunction">Activation Function</a>
+      <a href="#Agent">Agent</a>
       <a href="#AutoML">AutoML</a>
       <a href="#axis">Axis</a>
       <a href="#Backpropagation">Backpropagation</a>
@@ -89,7 +94,7 @@
       <a href="#metrics">Metrics</a>
       <a href="#Neuron">Neuron</a>
       <a href="#Neural_Network">Neural Network</a>
-      <a href="#PromptEngineering">Prompt Engineering</a>
+      <a href="#Prompt">Prompt</a>
       <a href="#tensor">Tensor</a>
       <ul>
         <li><a href="#vector">Vector</a></li>
@@ -99,6 +104,7 @@
       </ul>
       <a href="/Libraries/Python/TensorFlow">Tensorflow</a>
       <a href="#Token">Token</a>
+      <a href="#Tools">Tools</a>
       <a href="#Training">Training</a>
       <a href="#variance">Variance</a>
       <a href="/Machine Learning/Terms/Neural_Network/index.html"
@@ -168,6 +174,121 @@
   layers.Dense(32, activation="tanh"),    # F(x) = tanh(x)
   layers.Dense(.., activation="other"),   # In practice, any mathematical function can serve as an activation function
 ])</code></pre>
+
+      <h1 id="Agent">Agent</h1>
+      <p>
+        <b>What?</b><br />
+        &ensp; Agent is a program that uses an <a href="#llm">LLM</a> to decide
+        what to do next.<br />
+        &ensp; It is installed on User's Laptop and makes decision using (Think
+        &gt; Observe &gt; Repeat) loop until it reaches the final answer for
+        question asked by user.<br />
+        <b>Example(Claude, Cursor Agent):</b> <br />
+        &ensp; When you install Cursor IDE and run on Windows, Cursor agent runs
+        as Windows Service<br />
+        &ensp; Open Cursor &gt; Ctrl + Shift + P &gt; Developer: Open Process
+        Explorer &gt; Tree of cursor processes (extensionHost: This is local AI
+        agent)
+      </p>
+      <table>
+        <tr>
+          <th>
+            Agent installed on laptop<br />
+            User Edit C++ file on Cursor IDE Test, Commit changes
+          </th>
+          <th>
+            No Agent Installed on laptop<br />
+            chatgpt in browser
+          </th>
+        </tr>
+        <tr>
+          <td>
+            Cursor Agent is installed with IDE on laptop<br />
+            <div class="mermaid-wrap">
+              <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as Developer
+    box User Device / Laptop
+        participant LocalAgent@{ "type" : "control" } as Cursor IDE<br>Cursor Agent<br>(Windows Service)
+        participant FileSystem as Laptop File System
+        participant Git as Local/Remote Git
+    end
+    box Cursor Cloud/LLM
+        participant CloudLLM as Grok/GPT
+    end
+    participant RemoteGit as RemoteGit
+
+
+    User->>LocalAgent: Add bubble sort main.cpp<br>commit
+    Note over LocalAgent: Add System Prompt<br>+ User Request
+    LocalAgent->>CloudLLM: Send prompt + context + available tools (fs, git, terminal)
+
+    Note over CloudLLM: LLM Reasons: <br/>1. Send main.cpp
+
+    alt Tool Call: Read File
+    CloudLLM->>LocalAgent: Tool Call 1: `read_file(path: "main.cpp")`
+    LocalAgent->FileSystem: Read main.cpp
+    LocalAgent-->>CloudLLM: Return main.cpp
+    end
+
+    Note over CloudLLM: LLM Reasons: <br/>2. Compile
+
+    alt Tool Call: Compile Code
+    CloudLLM-->>LocalAgent: Tool Call 2: `run_terminal(cmd: "g++ main.cpp -o app && ./app")`
+    LocalAgent->FileSystem: g++ main.cpp
+    LocalAgent->>CloudLLM: Return test results
+    end
+
+    Note over CloudLLM: LLM Reasons: <br/>3. Commit
+
+    alt Tool Call: Compile Code
+    CloudLLM-->>LocalAgent: Tool Call 3: `git_commit(message: "Optimized sort")`
+    LocalAgent->Git: git add/commit
+    Git->>RemoteGit: commit
+    LocalAgent->>CloudLLM: git status
+    end
+        </pre>
+            </div>
+          </td>
+          <td>
+            <div class="mermaid-wrap">
+              <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as User
+
+    box User Laptop
+    participant UI as ChatGPT<br>Web UI (Browser)
+    end
+
+    box openAI Cloud
+    participant Agent as Agent
+    participant LLM as LLM(chatgpt)
+    participant Sandbox as Sandbox (Secure Env)
+    end
+
+    User->>UI: Create c++ code, test
+    UI->>Agent: HTTPS POST (create Code, test)
+
+    Note over Agent: Agent stores code<br>context in history DB
+
+    Agent->>LLM: create code
+    LLM-->>Agent: code
+
+    Agent->>Sandbox: Compilation & run tests
+    Sandbox-->>Agent: Test results (e.g., 3/3 passed)
+
+    Agent->>LLM: Generate code + tests
+    LLM-->>Agent: Code + tests
+
+    Agent-->>UI: Code + tests
+    UI-->>User: Code + tests
+          </pre>
+            </div>
+          </td>
+        </tr>
+      </table>
 
       <h1 id="AutoML">AutoML</h1>
       <p>
@@ -286,6 +407,27 @@ Cartesian product (AXB) = (Red, Jeans), (Red, Cargo), (Blue, Jeans), (Blue, Carg
         Data having a specific set of possible values. For example: different
         species of animals in a national park, names of countries etc.
       </p>
+      <h2>Preparing the Categorical Data</h2>
+      <p>
+        Preparing means converting categorical data into numerical format so
+        that it can be used in ML models. There are 3 ways to prepare
+        categorical data:<br />
+        1. Drop Categorical Data: If categorical data is not important for
+        model, we can drop it.<br />
+        2. Ordinal/Label Encoding: Assigning each category a unique integer
+        value.
+      </p>
+      <pre><code>Red = 4
+Blue = 0
+Green = 1</code></pre>
+      <p>
+        3. One-Hot Encoding: Creating binary columns for each category, where
+        the presence of a category is marked with a 1 and absence with a 0.
+      </p>
+      <pre><code>Color   Red   Blue  Green
+Red     1     0      0
+Blue    0     1      0
+Green   0     0      1</code></pre>
 
       <h1 id="conda">Conda</h1>
       <p>
@@ -1396,7 +1538,55 @@ class Neuron:
 |-------------|                                  |-------------|
       </code></pre>
 
-      <h1 id="PromptEngineering">Prompt Engineering</h1>
+      <h1 id="Prompt">Prompt?</h1>
+      <p>
+        Prompts are the sequence of tokens fed into the model<br />
+        But when we chat with systems like ChatGPT we are actually exchanging
+        messages. Behind the scenes, these messages are concatenated and
+        formatted into a prompt that the model can understand.
+      </p>
+      <img
+        src="https://huggingface.co/datasets/agents-course/course-images/resolve/main/en/unit1/assistant.jpg"
+        alt="Prompt"
+        style="width: 700px; height: 300px"
+      />
+      <h3>Prompt Types</h3>
+      <table>
+        <tr>
+          <th>Type</th>
+          <th>Meaning</th>
+          <th>Template</th>
+        </tr>
+        <tr>
+          <td>System Prompts</td>
+          <td>
+            Define how the model should behave. They serve as persistent
+            instructions, guiding every subsequent interaction.<br />
+            Below is converstation between user and model. The system prompt is
+            hidden from the user, User want help on his order.<br />
+
+            <pre><code><|im_start|>system
+You are a helpful polite AI assistant<|im_end|>
+<|im_start|>user
+I need help with my order<|im_end|>
+<|im_start|>assistant
+I'd be happy to help. Could you provide your order number?<|im_end|>
+<|im_start|>user
+It's ORDER-123<|im_end|>
+<|im_start|>assistant</code></pre>
+          </td>
+          <td>
+            <pre><code>messages = [
+    {"role": "system", "content": "You are a helpful polite AI assistant"},
+    {"role": "user", "content": "I need help with my order"},
+    {"role": "assistant", "content": "I'd be happy to help. Could you provide your order number?"},
+    {"role": "user", "content": "It's ORDER-123"},
+]</code></pre>
+          </td>
+        </tr>
+      </table>
+
+      <h2 id="PromptEngineering">Prompt Engineering</h2>
       <p>
         PE helps LLM users to customize the model's output. That is, end users
         clarify how the LLM should respond to their prompt.
@@ -1728,12 +1918,80 @@ Dimension/Axis   Array
 
       <h1 id="Token">Token</h1>
       <p>
-        Atomic unit that the model is training on and making predictions on(eg:
-        word, character or subwords). Eg:
+        The underlying principle of an LLM is to predict the next token, given a
+        sequence of previous tokens.<br />
+        A “token” is the unit of information an LLM works with. You can think of
+        a “token” as if it was a “word”<br />
+        Each model Iterates in prediction loop until it reaches EOS(End of
+        Sentence) token or max token limit.<br />
+        Every LLM breaks word/sentence into different token sizes
       </p>
-      <pre><code>"test" has 4 characters=4 tokens 
-"test has 1 word = 1 token
-"cats can have 2 subwords (cat, s) = 2 tokens"</code></pre>
+
+      <pre><code>How are you doing?
+GPT = 5 token, 18 characters (How, are, you, doing, ?)
+Claude = 5 token, 18 characters (How, are, you, doing, ?)
+LLama 2 = 6 token, 18 characters (&lt;s&gt;, How, are, you, doing, ?)
+
+Model	      Provider	     EOS Token	          Functionality
+GPT4	      OpenAI	      &lt;|endoftext|&gt;	        End of message text
+Llama 3	    Meta        	&lt;|eot_id|&gt;	          End of sequence
+Deepseek-R1	DeepSeek	    &lt;|end_of_sentence|&gt;	  End of message text
+SmolLM2	    Hugging Face	&lt;|im_end|&gt;	          End of instruction or message
+Gemma	      Google	      &lt;end_of_turn&gt;	        End of conversation turn</code></pre>
+
+      <h2>Conversations: User and Assistant Messages</h2>
+      <p>
+        A conversation consists of alternating messages between a Human (user)
+        and an LLM (assistant).<br />
+
+        Chat templates help maintain context by preserving conversation history,
+        storing previous exchanges between the user and the assistant. This
+        leads to more coherent multi-turn conversations.
+      </p>
+
+      <h1 id="Tools">Tools</h1>
+      <p>
+        Tool is a function given to the LLM. For instance, if you ask an LLM
+        directly (without a search tool) for today’s weather, the LLM will
+        potentially hallucinate random weather. <br />
+        Some commonly used tools in AI agents
+      </p>
+      <table>
+        <tr>
+          <th>Tool</th>
+          <th>Functionality</th>
+        </tr>
+        <tr>
+          <td>Calculator</td>
+          <td>Perform mathematical calculations</td>
+        </tr>
+        <tr>
+          <td>Web Browser</td>
+          <td>Searches the web for information</td>
+        </tr>
+        <tr>
+          <td>Code Interpreter</td>
+          <td>Executes code snippets and returns results</td>
+        </tr>
+        <tr>
+          <td>Image Generation</td>
+          <td>Creates images based on text descriptions.</td>
+        </tr>
+      </table>
+      <p>Example of Tool</p>
+      <table>
+        <tr>
+          <td>
+            <pre><code>def calculator(a: int, b: int) -> int:
+    """Multiply two integers."""
+    return a * b</code></pre>
+          </td>
+          <td>
+            Tool Call from frontend<br />
+            <pre><code>Tool Name: calculator, Description: Multiply two integers., Arguments: a: int, b: int, Outputs: int</code></pre>
+          </td>
+        </tr>
+      </table>
 
       <h1 id="Training">Training</h1>
       <p>
@@ -1758,5 +2016,6 @@ Dimension/Axis   Array
       </dl>
     </div>
     <script src="/scripts/prism.js"></script>
+    <script type="module" src="/scripts/mermaid-init.js"></script>
   </body>
 </html>

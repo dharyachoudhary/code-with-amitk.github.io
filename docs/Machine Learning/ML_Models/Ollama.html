@@ -39,7 +39,6 @@
       </ul>
       <a href="#install">Install & Run Ollama</a>
       <ul>
-        <li><a href="#download">Download Model(qwen)</a></li>
         <li><a href="#hit">Hit Qwen RestAPIs</a></li>
         <li><a href="#logs">Qwen Logs</a></li>
       </ul>
@@ -47,7 +46,7 @@
     </aside>
 
     <article style="margin-left: 200px">
-      <h2 id="what">Ollama (Orchestrator / Inference Engine)</h2>
+      <h1 id="what">Ollama (Orchestrator / Inference Engine)</h1>
       <p>
         Ollama is a model runner (also called an inference engine).
         <b>Ollama runs the <a href="/Machine Learning/Terms.html#llm">LLM Models</a></b> like: 
@@ -66,76 +65,41 @@
 
       <h3 id="any">Can Ollama run any LLM model?</h3>
       <p>
-        Ollama understands GGUF format. Any model which can be converted to this
-        can run on Ollama<br />
-        <b>1. Direct Support:</b> Ollama has an official library supporting
-        dozens of mainstream open models (Llama 3, Gemma 2, Mistral, Qwen,
-        DeepSeek). You can download these instantly with ollama run<br />
-        <b>2. Custom Models:</b> If you find a niche or custom-tuned open-source
-        model on Hugging Face (the GitHub of AI), you can download its .gguf
-        file and use a simple file called a Modelfile to load it into Ollama
-        manually.
+        Ollama understands GGUF format. Any model which can be converted to GGUF format.<br />
+        <b>1. Direct Support:</b> Dozens of models (Llama 3, Gemma 2, Mistral, Qwen,
+        DeepSeek). Download and run<br />
+        <b>2. Custom Models:</b> Convert to GGUF format and run.
       </p>
 
-      <h2 id="install">Installing & Running Ollama</h2>
+      <h1 id="install">Install, Run Agent in Ollama</h1>
       <pre><code class="language-css">
-$ curl -fsSL https://ollama.com/install.sh | sh
-&gt;&gt;&gt; Cleaning up old version at /usr/local/lib/ollama
-&gt;&gt;&gt; Installing ollama to /usr/local
-&gt;&gt;&gt; Downloading ollama-linux-amd64.tar.zst
+///////// Install /////////
+$ curl -fsSL https://ollama.com/install.sh | sh           // Linux
+// Windows. Download from website and run installer
 
-Above script will create /etc/systemd/system/ollama.service
-and place binary inside /usr/bin/ and libs inside /usr/libs
+////////// Run Ollama /////////
+// Linux. olllama is in /etc/systemd/system/ollama.service
+$ sudo systemctl restart | start | status ollama
+// Windows. Start Ollama from Start Menu or Desktop Icon
 
-$ sudo systemctl restart ollama
-$ sudo systemctl status ollama
-● ollama.service - Ollama Service
-     Loaded: loaded (/etc/systemd/system/ollama.service; enabled; vendor preset: enabled)
-     Active: active (running) since Mon 2026-06-15 22:39:53 IST; 6s ago
-   Main PID: 134899 (ollama)
-      Tasks: 13 (limit: 9229)
-     Memory: 19.8M
-        CPU: 663ms
-     CGroup: /system.slice/ollama.service
-             └─134899 /usr/local/bin/ollama serve
-      </code></pre>
-
-      <h3 id="download">Download qwen(Model) and run in Ollama</h3>
-      <table>
-        <tr>
-          <td><pre><code class="language-css">
+/////// Download Model /////////
+// Linux, Windows
 $ ollama run qwen2.5:1.5b
-pulling manifest
-pulling 183715c43589: 100% ▕██████████▏ 986 MB
-pulling 66b9ea09bd5b: 100% ▕██████████   68 B
-pulling eb4402837c78: 100% ▕█████████ 1.5 KB
-pulling 832dd9e00a68: 100% ▕█████████▏  11 KB
-pulling 377ac4d7aeef: 100% ▕███████ 487 B
-verifying sha256 digest
-writing manifest
-success
-&gt;&gt;&gt; hello
-Hello! How can I assist you today?
-/exit
-$
-      </code></pre></td>
-      <td>
-        Check Model is running?<br>
-        <pre><code class="language-css">
+
+/////// Run Model ////////////
+$ ollama list
+$ ollama run llama3.2
+Enter /bye in ollama prompt
+
+//////// Check Model is running /////////
+// Linux, Windows
+$ ollama ps
 $ curl http://localhost:11434/api/generate -d '{
   "model": "qwen2.5:1.5b",
   "prompt": "Hi",
   "stream": false
 }'
-
-$ ollama ps
-NAME            ID              SIZE      PROCESSOR    CONTEXT    UNTIL
-qwen2.5:1.5b    65ec06548149    1.2 GB    100% CPU     4096       4 minutes from now
-        </code></pre>
-      </td>
-        </tr>
-      </table>
-
+      </code></pre>
 
       <h3 id="hit">Hit AI Model (qwen's) REST APIs</h3>
       <p>
