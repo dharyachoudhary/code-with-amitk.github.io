@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>Functions</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Languages/Programming/Rust/Functions.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/Rust/Functions.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
   </head>
@@ -26,18 +29,18 @@
 
     <aside class="sidebar">
       <!--See .sidebar in styles.css-->
-      <a href="#closure">What is Closure</a>
-      <a href="#closuret">Closure Types</a>
+      <a href="#closure">Closure</a>
       <ul>
-        <li><a href="#move">Move Closure</a></li>
-        <li><a href="#borrow">Borrow Closure</a></li>
+        <li>Move Closure</li>
+        <li>Borrow Closure</li>
       </ul>
+      <a href="#map-and-collect">.map() .collect() .iter()</a>
     </aside>
 
     <article style="margin-left: 200px">
-      <h2 id="closure">
+      <h1 id="closure">
         Closure = <a href="/Languages/Programming/C++/">Lambda(C++)</a>
-      </h2>
+      </h1>
       <dl>
         Closure is a function-like construct that can capture variables from the
         environment in which it is defined.
@@ -80,14 +83,20 @@
         </tr>
       </table>
 
-      <h2 id="closuret">Closure Types</h2>
-      <h4 id="move">Move Closure</h4>
-      <dl>
-        A move closure captures variables from its environment by taking
-        <a href="/Languages/Programming/Rust/">ownership</a> of them (i.e.,
-        moving them). Example
-      </dl>
-      <pre><code class="language-css">
+      <h2 id="types">Closure Types</h2>
+      <table>
+        <tr>
+          <th></th>
+          <th>Move Closure</th>
+          <th>Borrow Closure</th>
+        </tr>
+        <tr>
+          <td>Definition</td>
+          <td>
+            A move closure captures variables from its environment by taking
+            <a href="/Languages/Programming/Rust/">ownership</a> of them (i.e.,
+            moving them)<br />
+            <pre><code class="language-css">
 fn main() {
     let x = 10;
     let closure = || {
@@ -97,13 +106,33 @@ fn main() {
     // 'x' cannot be used after this point, as it has been moved into the closure.
 }
             </code></pre>
+          </td>
+          <td>
+            A borrow closure captures variables by
+            <a href="/Languages/Programming/Rust/">borrowing</a> them (i.e.,
+            creating references to them)
+          </td>
+        </tr>
+      </table>
 
-      <h4 id="borrow">Borrow Closure</h4>
-      <dl>
-        A borrow closure captures variables by
-        <a href="/Languages/Programming/Rust/">borrowing</a> them (i.e.,
-        creating references to them)
-      </dl>
+      <h1 id="map-and-collect">.iter() .map() .collect()</h1>
+      <p>
+        pipeline in Rust is a functional pattern that transforms a collection of
+        input items into a new collection of a different type, element by
+        element.
+      </p>
+      <pre><code>3 stages:
+.iter(): Takes JSON array & creates an iterator to look at each item (m) one by one
+.map(|m| { ... }): runs once for every single element
+
+Option Chaining:
+  .get("name"): Try to find a field named "name".
+  .or_else(|| m.get("model")): If "name" isn't there, fall back and try looking for "model" instead.
+  .and_then(|x| x.as_str()): If a field was found, confirm it is actually a valid JSON string.
+  .map(|s| s.to_string()): If it is a string, convert it from a borrowed &str slice into an owned String
+
+.collect(): collects all the elements into a new collection (Vec, HashMap, etc.)
+      </code></pre>
     </article>
     <script src="/scripts/prism.js"></script>
   </body>

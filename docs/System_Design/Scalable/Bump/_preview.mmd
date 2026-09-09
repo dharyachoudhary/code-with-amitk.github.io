@@ -1,0 +1,107 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#d6ebf7",
+    "primaryTextColor": "#1a2b4a",
+    "primaryBorderColor": "#5b8fa8",
+    "lineColor": "#4a6fa5",
+    "secondaryColor": "#eaf4fb",
+    "tertiaryColor": "#f4f9fc",
+    "clusterBkg": "#e8f4fc",
+    "clusterBorder": "#6b93a8"
+  },
+  "flowchart": {
+    "htmlLabels": true,
+    "nodeSpacing": 28,
+    "rankSpacing": 48,
+    "padding": 12
+  }
+}}%%
+flowchart LR
+
+    A["User A Phone"]
+    GLB["Global / Regional LB"]
+
+    subgraph K8S["Kubernetes Cluster"]
+        direction LR
+
+        ING["Kubernetes Ingress"]
+
+        subgraph INGEST["Ingestion Tier"]
+            direction TB
+            I3["Location Pod N"]
+            I1["Location Pod 1"]
+            I2["Location Pod 2"]
+            I3 ~~~ I1 ~~~ I2
+        end
+
+        RP[("Redpanda Cluster")]
+
+        subgraph PROC[" "]
+            direction TB
+
+            subgraph CROW[" "]
+                direction LR
+                subgraph CONSUMERS["Consumer / Processing Tier"]
+                    direction TB
+                    C3["Location Consumer N"]
+                    C1["Location Consumer 1"]
+                    C2["Location Consumer 2"]
+                    C3 ~~~ C1 ~~~ C2
+                end
+                CUR[("Current Location<br/>ScyllaDB")]
+            end
+
+            subgraph FROW[" "]
+                direction LR
+                subgraph FANOUT["Fanout Tier"]
+                    direction TB
+                    F3["Fanout Pod N"]
+                    F1["Fanout Pod 1"]
+                    F2["Fanout Pod 2"]
+                    F3 ~~~ F1 ~~~ F2
+                end
+                FRIEND[("Friendship / Privacy<br/>ScyllaDB / PostgreSQL")]
+            end
+        end
+
+        subgraph WS["WebSocket Gateway Tier"]
+            direction TB
+            W3["WS Pod N"]
+            W1["WS Pod 1"]
+            W2["WS Pod 2"]
+            W3 ~~~ W1 ~~~ W2
+        end
+
+        REDIS[("Redis<br/>Connection Registry")]
+    end
+
+    B["User B Phone"]
+
+    %% LOCATION INGESTION
+    A -->|"Location update"| GLB
+    GLB --> ING
+    ING --> INGEST
+    INGEST --> RP
+
+    %% LOCATION STORAGE
+    RP --> CONSUMERS
+    CONSUMERS --> CUR
+
+    %% FANOUT
+    RP --> FANOUT
+    FANOUT --> FRIEND
+    FANOUT --> WS
+
+    %% B OPENS WEBSOCKET (via LB; B stays a sink on the right)
+    GLB -->|"Open WebSocket"| WS
+
+    %% CONNECTION REGISTRY
+    WS --> REDIS
+
+    %% SERVER SIDE DELIVERY
+    WS -->|"LocationUpdate(A)"| B
+
+    style PROC fill:none,stroke:none
+    style CROW fill:none,stroke:none
+    style FROW fill:none,stroke:none

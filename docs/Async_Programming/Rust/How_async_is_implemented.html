@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPP Async Programming</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Async_Programming/Rust/How_async_is_implemented.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+    <!-- Add any necessary CSS and JavaScript files -->
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Async_Programming/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="#how">How</a>
+    </aside>
+
+    <!--<article style="margin-left: 200px">-->
+    <article style="margin-left: 200px">
+      <h1>How Async is implemented in Rust Tokio</h1>
+      <p>
+        Instead of creating threads by itself tokio uses epoll()<br />
+        Tokio usually starts with threads equal to cores and use these to
+        schedule tasks on epoll()
+      </p>
+      <pre><code>// Tokio asks kernel to create non-blocking socket
+sockfd = socket(O_NONBLOCK)    // Create non blocking socket<br>
+
+// Tokio try reading.
+// No data returns EWOULDBLOCK
+read(sockfd)
+
+// Tokio asks kernel to put on epoll()
+// Make me aware when data arrives
+epoll(sockfd)</code></pre>
+
+      <h2>Tokio Components</h2>
+      <p>
+        <b>1. Reactor:</b> Interfaces with the OS kernel (epoll/kqueue) to track
+        network socket readiness.<br />
+
+        <b>2. Scheduler:</b> It manages a pool of worker threads. When a future
+        becomes ready (data arrived), the reactor pushes it back to a worker
+        thread's queue to be executed.
+      </p>
+    </article>
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/common.js"></script>
+  </body>
+</html>

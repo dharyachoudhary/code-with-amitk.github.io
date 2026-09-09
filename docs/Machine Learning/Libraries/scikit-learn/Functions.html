@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>scikit-learn Functions</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Machine%20Learning/Libraries/scikit-learn/Functions.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Machine%20Learning/Libraries/scikit-learn/Functions.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <!-- Add any necessary CSS and JavaScript files -->
@@ -138,12 +141,10 @@ imputed_X_train = pd.DataFrame(my_imputer.fit_transform(X_train))
         model simply memorizing the answers instead of learning patterns).
       </p>
       <pre><code class="language-css">
-# Split the incoming data into 
-#  |- Training question, answers: X_train, y_train (Practice Questions and Answers)
-#  |- Validation questions, answers: X_valid, y_valid. Once model is trained the check how its working(Final questions and answers)
+# Split the incoming data into (X: Feature, y: label)
+#  |- Training features, Labels: X_train, y_train
+#  |- Validation features, labels: X_valid, y_valid. Once model is trained, compare predictions with y_valid.
 
-// X_training_questions, X_validation_questions
-// y_training_answers, y_validation_answers
 X_train, X_test, y_train, y_test = train_test_split(*arrays, test_size=None, 
                   train_size=None, random_state=None, 
                   shuffle=True, stratify=None)

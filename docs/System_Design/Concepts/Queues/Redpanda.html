@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Redpanda</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Concepts/Queues/Redpanda.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+    <link rel="stylesheet" href="/css/mermaid.css" />
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/System_Design/Concepts/">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+    <aside class="sidebar">
+      <a href="#overview">Redpanda</a>
+      <a href="#vs-kafka">Why choose RP over Kafka</a>
+      <a href="#usecases">Redpanda usecases</a>
+      <a href="#bump">Why Bump / AMO</a>
+    </aside>
+
+    <main style="margin-left: 200px">
+      <article>
+        <h1 id="overview">Redpanda</h1>
+        <p>
+          Same Producers append records to topics; consumers read them in
+          order.<br />
+          <b>Kafka broker is Java process,</b> with as extra moving parts.<br />
+          <b>Redpanda is C++ binary</b> where these moving parts are not present
+        </p>
+
+        <h1>Kafka vs Redpanda</h1>
+        <table>
+          <tr>
+            <th></th>
+            <th>Kafka (Java)</th>
+            <th>Redpanda (C++ Seaster)</th>
+          </tr>
+          <tr>
+            <td>Written in</td>
+            <td>Java</td>
+            <td>
+              C++.
+              <a href="/Languages/Programming/C++/CPP_vs_Java.html"
+                >C++ is faster wrt Java</a
+              ><br />
+              - No GC Pauses, Latency more predictable
+            </td>
+          </tr>
+          <tr>
+            <td>Latency</td>
+            <td>More. JVM + ZooKeeper/KRaft + Broker are seperate binaries</td>
+            <td>Everything in 1 C++ binary</td>
+          </tr>
+          <tr>
+            <td>clients, topics, consumer group</td>
+            <td></td>
+            <td>Same as kafka</td>
+          </tr>
+          <tr>
+            <td>Partition Handling</td>
+            <td>Complex handling on shards</td>
+            <td>
+              Each CPU Core owns a shard of partitions<br />
+              No shared locks, no thread-pool hops for the hot path
+            </td>
+          </tr>
+          <tr>
+            <td>Maintenance Effort</td>
+            <td>Big team required. Broker,Zookeeper, GC heap tuning.</td>
+            <td>Small team can handle. 1 binary.</td>
+          </tr>
+          <tr>
+            <td>Use case</td>
+            <td>Huge Infra. already-tuned Kafka</td>
+            <td>small team, fewer nodes</td>
+          </tr>
+        </table>
+      </article>
+    </main>
+
+    <script src="/scripts/prism.js"></script>
+    <script type="module" src="/scripts/mermaid-init.js"></script>
+  </body>
+</html>

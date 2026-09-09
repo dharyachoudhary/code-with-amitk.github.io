@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Data_Structures/Trees/LSM_Tree.html"
+    />
+    <title>LSM Tree</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Data_Structures/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="#what">LSM Tree?</a>
+      <a href="#why">Why LSM Trees Scale Horizontally Better Than B-Trees</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="what">LSM Tree / Log-Structured Merge-tree?</h1>
+      <p>
+        Data structure optimized for write-heavy workloads.<br />
+        LSM Tree is not a traditional node-and-pointer parent-child tree
+        structure<br />
+        LSM-Tree = (Memtables(in memory) + SSTables(on disk))<br /><br />
+      </p>
+      <h3>Write Data to LSM Tree?</h3>
+      <p>
+        <b>1. MemTables(In memory/RAM)</b><br />
+        &ensp; Initially data is written to it. &ensp; When (size &gt; 64KB).
+        data is moved to Disk<br />
+        <b>2. SSTables(Sorted String Table) on Disk</b><br />
+        &ensp; SSTables are immutable sorted files which store data in
+        sequential manner.
+      </p>
+      <h3>Read Data</h3>
+      <p>
+        Checks
+        <a
+          href="/Data_Structures/Probabalistic_Data_Structures/Bloom_Filter.html"
+          >Bloom Filter</a
+        >
+        -> Index Summary -> SSTable Data.
+      </p>
+      <h3>Update Data</h3>
+      <p>
+        LSM tree is strictly immutable<br />
+        LSM-trees handle updates using timestamp-based reconciliation, ie add
+        new value with updated timestamp<br />
+        Suppose we updated a key, now 2 keys are present in SSTable with
+        different timestamps<br />
+        <b>Merge and Purge(Compaction):</b> Periodically, a background process
+        merges overlapping SSTables into single new files
+      </p>
+
+      <h2>Example</h2>
+      <p>
+        Consider a example where {key,value} need to be stored.<br />
+        <b>Writing to DB:</b> 1st data goes to RAM(Memtables), once size of
+        Memtables(exceeds 64KB) data is moved to disk(SSTables).<br />
+        <b>Reading from DB:</b> To Read ID: 2: The system checks the MemTable
+        first. If not found, it checks the SSTables from newest to oldest.
+      </p>
+      <pre><code>Incoming data       Stored in RAM(Memtables)
+        {1, A}        
+        {3, C}  ---> |{1,A}, {3,C}|
+                    (limit reached 64KB)
+                            |
+                            |-------write------> Disk(SSTable-1)
+                                                [ {1,A}, {3,C} ]
+
+        {2,B} ----> |{2,B}|------write---------> [ {1,A}, {2,B}, {3,C} ]
+      </code></pre>
+
+      <h2 id="why">Why LSM Trees Scale Horizontally Better Than B-Trees</h2>
+      <p>
+        Core difference between LSM-based storage engines(e.g., Cassandra,
+        RocksDB, ScyllaDB) and traditional B-Tree storage engines (e.g.,
+        PostgreSQL, InnoDB) comes down to
+        <b>append-only storage vs. in-place updates.</b><br /><br />
+
+        <b>How postgres stores data?</b><br />
+        &ensp; In-Place Updates: Overwrites fixed-size disk pages directly.<br /><br />
+
+        <b>How LSM Trees store data?</b><br />
+        &ensp; Append-Only / Immutable: Writes sequentially to RAM, then flushes
+        new SSTables to disk.<br />
+        &ensp; Whenever new data need to be added a new Shard is added and data
+        present on old shard is not touched.<br />
+        &ensp; Shards can paritioned using user_id
+      </p>
+    </article>
+
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/search.js"></script>
+    <script src="/scripts/mobile.js"></script>
+  </body>
+</html>

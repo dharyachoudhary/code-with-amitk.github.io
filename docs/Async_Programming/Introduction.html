@@ -4,7 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Async Programming</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Async_Programming/Introduction.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Async_Programming/Introduction.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <!-- Add any necessary CSS and JavaScript files -->
@@ -39,24 +42,19 @@
 
     <!--<article style="margin-left: 200px">-->
     <article style="margin-left: 200px">
-      <h2 id="what">
-        What is Asynchronous (Means
+      <h2 id="what">Asynchronous</h2>
+      <dt>
+        Async means
         <a
           href="https://github.com/code-with-amitk/Code-examples/tree/master/Threads_Processes_IPC/Terms"
           >Concurrent</a
-        >)?
-      </h2>
-      <dt>
-        Multiple tasks are executed concurrently(Not parallely) by executing
-        each task until it would block, then switching to another task that is
-        ready to make progress.<br />
-        PLEASE NOTE:
+        >
+        BUT NOT SINGLE THREADED. Aysnc is not parallel.<br />
+        Each task execute until it would block, then switching to another task
+        that is ready to make progress.<br />
         <font color="red"
           >Green threads and async are related but not same concepts</font
-        ><br />
-        &ensp; Green threads, runtime does M:N thread scheduling over OS
-        Threads<br />
-        &ensp; Async, 1 thread executing task concurrently<br />
+        >. Green threads, runtime does M:N thread scheduling over OS Threads<br />
         Model runs larger number of tasks on a limited number of threads,
         because the per-task overhead is typically very low.<br />
         Eg: I/O-bound tasks(Network or file I/O)
@@ -72,10 +70,11 @@
         <tr>
           <td>Concurrency</td>
           <td>
-            Done inside single thread. Uses event loops or similar mechanisms to
-            efficiently handle tasks
+            Uses event loops or similar mechanisms to efficiently handle tasks
           </td>
-          <td>Executing multiple threads of execution concurrently.</td>
+          <td>
+            Executing multiple threads of execution concurrently or parallely.
+          </td>
         </tr>
         <tr>
           <td>Resource Overhead</td>

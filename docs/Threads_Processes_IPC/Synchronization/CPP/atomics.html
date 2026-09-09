@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+  <head>
+    <title>atomics</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Threads_Processes_IPC/Synchronization/CPP/atomics.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Threads_Processes_IPC/">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="#what">atomics?</a>
+      <a href="#internal">How implemented</a>
+      <a href="#example">Example</a>
+      <a href="#mo">Memory order</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="what">C++ <code>std::atomic</code></h1>
+      <p>
+        Dictionary meaning: Atomic means something that cannot be broken down
+        into smaller parts<br />
+        atomic variable can only be changed/updated by one thread at a time.
+        atomic variable can be shared between threads and can be updated
+        (without the need for locks).<br />
+        Only varibles can be declared as atomic, not functions or classes.<br />
+        We <font color="red">cannot</font> protect a multi-statement critical
+        section using a single std::atomic the way you use a std::mutex
+
+        <br />
+        Same idea as
+        <a href="/Threads_Processes_IPC/IPC/Golang/atomics.html">Go atomics</a>.
+      </p>
+      <pre><code class="language-css">#include &lt;atomic&gt;
+std::atomic&lt;int&gt; x{0};</code></pre>
+
+      <h1 id="internal">Atomic Internal Implementation</h1>
+      <p>
+        Compiler injects memory barriers/fences + Hardware-level CPU
+        instructions(at runtime)<br />
+        <b>Compiler injects memory barriers</b> that prevents the compiler from
+        reordering read and write operations outside atomic boundary<br />
+
+        <b>CPU instructions for atomicity:</b><br />
+        &ensp; x86/x64<br />
+        &emsp; LOCK XADD: For atomic additions. lock the cache line or memory
+        bus so other cores cannot access it during the operation.<br />
+
+        &ensp; ARM and RISC-V architectures<br />
+        &emsp; LDREX/STREX: Load-Exclusive and Store-Exclusive instructions.
+        <br />
+      </p>
+
+      <h2 id="example">Example: Set, load(read)</h2>
+
+      <p>
+        <code>store</code> = set the atomic. <code>load</code> = read it.
+        Default constructor leaves the value <b>unspecified</b> — always
+        initialize (<code>{0}</code> or <code>ATOMIC_VAR_INIT</code>).
+      </p>
+      <pre><code class="language-css">#include &lt;atomic&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    std::atomic&lt;int&gt; x{0};   // create, start at 0
+
+    x.store(5);               // SET   (default: seq_cst)
+    int v = x.load();         // READ  (default: seq_cst)
+    std::cout &lt;&lt; v &lt;&lt; "\n";   // 5
+
+    x.fetch_add(1);           // SET via add (default: seq_cst)
+    std::cout &lt;&lt; x.load() &lt;&lt; "\n";  // 6
+}</code></pre>
+
+      <h1 id="Ordering">Ordering?</h1>
+      <pre><code>int x = 0;
+int y = 0;
+
+void setup() {
+    x = 1; // Statement A
+    y = 2; // Statement B
+}</code></pre>
+      <p>
+        To a human, Statement A comes before Statement B. However, compilers
+        (during optimization) may execute Statement B before Statement A(ie
+        shuffle) as long as the final result is the same. This is called
+        <b>reordering</b>.<br />
+      </p>
+
+      <h1 id="mo">Memory ordering for atomics</h1>
+      <p>
+        Memory order controls <b>reordering</b> of surrounding variables/control
+        around the atomic. It is a hint to the compiler and CPU about how to
+        order memory operations.<br />
+        <b>Default memory order:</b> memory_order_seq_cst<br />
+      </p>
+
+      <table border="1" cellpadding="6">
+        <tr>
+          <th>Order</th>
+          <th>Meaning</th>
+          <th>When to use</th>
+        </tr>
+        <tr>
+          <td><code>memory_order_relaxed</code></td>
+          <td>
+            Guarantees atomicity only for that specific variable, not
+            surrrounding variables.<br />
+            memory_order_relaxed the atomic operation itself won't be torn(ie
+            broken), but the compiler and CPU are completely free to reorder
+            surrounding read and write operations in any way they want
+          </td>
+        </tr>
+        <tr>
+          <td><code>memory_order_release</code></td>
+          <td>
+            Acts as a barrier for preceding operations. Any memory writes (to
+            atomic or regular variables) that happened before the release store
+            are locked in place and cannot be reordered after it.
+          </td>
+        </tr>
+        <tr>
+          <td><code>memory_order_acquire</code></td>
+          <td>
+            Acts as a barrier for subsequent operations. Any memory reads or
+            writes that happen after the acquire load cannot be reordered before
+            it.
+          </td>
+        </tr>
+        <tr>
+          <td><code>memory_order_acq_rel</code></td>
+          <td>
+            Synchronized handshake between two threads.<br />
+            Weaker than sequential consistency because they don't enforce a
+            global timeline
+          </td>
+        </tr>
+        <tr>
+          <td><code>memory_order_seq_cst (default memory order)</code></td>
+          <td>
+            Strictest ordering.<br />
+            Every thread in the program will agree on the exact chronological
+            sequence in which atomic operations occurred, no matter how many CPU
+            cores or caches are involved.<br />
+            <b>drawback:</b> To achieve this, the CPU must inject heavy hardware
+            barriers (fences) that stall execution until caches are fully
+            synchronized, making it safe but potentially slower.
+          </td>
+        </tr>
+        <tr>
+          <td><code>memory_order_consume (rarely used / discouraged)</code></td>
+          <td>
+            Weaker than acquire (data-dependent loads only). Compilers almost
+            always promote it to acquire.
+          </td>
+          <td>Do not use. Prefer <code>acquire</code>.</td>
+        </tr>
+      </table>
+
+      <h2>Mixing 2 memory orders</h2>
+      <p>
+        Illegal combinations. Code will compile but will not work as expected.
+      </p>
+      <pre><code class="language-css">// Typical pair (weaker than default, still correct for a flag + data)
+data = 42;
+ready.store(1, std::memory_order_release);
+
+if (ready.load(std::memory_order_acquire) == 1)
+    use(data);   // sees 42</code></pre>
+    </article>
+    <script src="/scripts/prism.js"></script>
+  </body>
+</html>

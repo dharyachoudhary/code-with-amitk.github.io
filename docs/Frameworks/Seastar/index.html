@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Seastar</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Frameworks/Seastar"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Frameworks/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="what">Seastar</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="what">Seastar (C++ Async Framework)</h1>
+      <p>
+        It is a C++ framework for building server to handle huge load.<br />
+        Invented in 2010. In 2015 ScyllaDB started using it
+      </p>
+
+      <h2>Architecture</h2>
+      <p>
+        Multicore<br />
+        Asynchronous<br />
+        Shared nothing<br />
+        <b>Thread-per-Core (Shared-Nothing)</b> &lt;&lt;&lt;&lt;&lt;
+        <font color="red">This makes it Ultra Fast</font><br />
+        &ensp; 1 thread is allocated per CPU core. if system 10 physical CPU
+        cores, seastar will start with 10 threads. Each thread binded(CPU
+        affinity) to each core<br />
+        &ensp; Each CPU core acts as an isolated, self-contained server with its
+        own<br />
+        &emsp; RAM<br />
+        &emsp; network queue<br />
+        &emsp; disk etc.<br />
+        &ensp; This makes threads not to share memory with each other. Hence
+        <u>OS locking, context switching, IPC is completely skipped</u>
+        making it super fast.
+      </p>
+
+      <h2>Code</h2>
+      <pre><code class="language-css">#include &lt;seastar/core/app-template.hh&gt;
+#include &lt;iostream&gt;
+
+int main(int argc, char** argv) {
+    seastar::app_template app;
+
+    return app.run(argc, argv, [] {
+        std::cout &lt;&lt; "Hello from Seastar!" &lt;&lt; std::endl;
+        return seastar::make_ready_future&lt;&gt;();
+    });
+}</code></pre>
+    </article>
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/common.js"></script>
+  </body>
+</html>

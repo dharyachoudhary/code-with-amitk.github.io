@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>SQL vs NoSQL</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/System_Design/Concepts/Databases/SQL_NoSQL_Vector.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Concepts/Databases/SQL_NoSQL_Vector.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
   </head>
@@ -43,10 +46,10 @@
         </p>
         <table>
           <tr>
-            <th></th>
-            <th>SQL / Structured / Relational</th>
-            <th>NoSQL / unStructured / nonRelational</th>
-            <th>Vector</th>
+            <th style="width: 10%"></th>
+            <th style="width: 30%">SQL / Structured / Relational</th>
+            <th style="width: 30%">NoSQL / unStructured / nonRelational</th>
+            <th style="width: 30%">Vector</th>
           </tr>
           <tr>
             <td>What</td>
@@ -56,35 +59,25 @@
             </td>
             <td>Documents, Key-Values, or Graphs</td>
             <td>
-              Stores High-dimensional
-              <a href="/Machine Learning/Terms.html#tensor">Tensors</a> +
-              Metadata<br /><br />
-              <i>Vector DB answers</i> "What does this abstract meaning
-              resemble?"
+              Stores
+              <a href="/Machine%20Learning/Terms.html#Embedding">Embeddings</a>
+              <br /><br />
+              <i>Vector DB answers</i> Are these 2 things similar?
             </td>
           </tr>
           <tr>
             <td>How Data is Stored Internally</td>
             <td>
-              <a
-                href="https://github.com/code-with-amitk/Code-examples/tree/master/DS_Questions/Data_Structures/Trees/SelfBalancedBST"
-                >B-Trees</a
+              <a href="/Data_Structures/Trees/Types_of_Trees.html#mtree"
+                >B+Trees</a
               >
               or
-              <a
-                href="https://github.com/code-with-amitk/Code-examples/tree/master/DS_Questions/Data_Structures/Hash_Tables"
-                >Hash Maps</a
+              <a href="/Data_Structures/Hash_Tables/Introduction.html"
+                >Hash Tables</a
               >
             </td>
             <td>
-              <a
-                href="https://github.com/code-with-amitk/Code-examples/tree/master/DS_Questions/Data_Structures/Trees/SelfBalancedBST"
-                >B-Trees</a
-              >, LSM-Trees, or
-              <a
-                href="https://github.com/code-with-amitk/Code-examples/tree/master/DS_Questions/Data_Structures/Hash_Tables"
-                >Hash Maps</a
-              >.
+              <a href="/Data_Structures/Trees/LSM_Tree.html">LSM-Trees</a>
             </td>
             <td>ANN Graphs (HNSW) or Inverted File Index (IVF)</td>
           </tr>
@@ -258,18 +251,12 @@ Find me the Top-5 vectors closest to this Query Tensor
             </td>
           </tr>
           <tr>
-            <td>Huge Data Supoprt (~1TB)</td>
-            <td>No <a href="./SQL/SQL_Issues.html#why">Why?</a></td>
-            <td>yes</td>
-          </tr>
-          <tr>
             <td>Horizontal Scaling</td>
+            <td>Does not support</td>
             <td>
-              <a href="./SQL/SQL_Issues.html#horiscaling"
-                >Does not support Horizontal scaling efficiently</a
-              >
+              <a href="/Data_Structures/Trees/LSM_Tree.html">LSM Trees</a> are
+              horizontally scalable
             </td>
-            <td>yes</td>
           </tr>
           <tr>
             <td>Tech Support</td>

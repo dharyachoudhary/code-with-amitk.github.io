@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>Machine Learning Types</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Machine%20Learning/ML_and_Types_Algorithms.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Machine%20Learning/ML_and_Types_Algorithms.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <!-- Add any necessary CSS and JavaScript files -->
@@ -29,19 +32,23 @@
       <a href="#what">What is ML?</a>
       <a href="#types">Types of ML?</a>
       <ul>
-        <li><a href="#">Supervised</a></li>
-        <li><a href="#">Unsupervised</a></li>
-        <li><a href="#">Semisupervised</a></li>
-        <li><a href="#">Reinforcement</a></li>
-        <li><a href="#">Generative AI</a></li>
+        <li>Supervised</li>
+        <li>Unsupervised</li>
+        <li>Semisupervised</li>
+        <li>Reinforcement</li>
+        <li>Generative AI</li>
       </ul>
       <a href="#slmodels">Supervised Learning Model</a>
       <ul>
         <li>
-          <a href="#reg">Regressions</a>
+          <a href="#regression">Regressions</a>
           <ul>
+            <li><a href="#linearregression">Linear</a></li>
+            <li><a href="#LogisticRegression">Logistic</a></li>
             <li><a href="#dtr">Decision Tree</a></li>
-            <li><a href="#ranforr">Random Forest</a></li>
+            <ul>
+              <li><a href="#RandomForestRegression">Random Forest</a></li>
+            </ul>
           </ul>
         </li>
         <li>
@@ -114,7 +121,16 @@
         </tr>
         <tr>
           <td>Types</td>
-          <td></td>
+          <td>
+            <pre>
+|- Regression
+  |- Linear
+  |- Logistic(Sigmoid)
+  |- Decision Trees
+    |- Random Forest
+          </pre
+            >
+          </td>
           <td>
             <b>1. Clustering:</b><br />
 
@@ -157,7 +173,7 @@
         Support Vector Machines (SVMs), Decision Trees & Random Forests, Neural
         networks
       </p>
-      <h1>1.1 Regression (Gives % or numeric value)</h1>
+      <h1 id="regression">1.1 Regression (Gives % or numeric value)</h1>
       <p>
         Examples: Predict whether based on inputs, Predict price of car provided
         with some inputs(mileage, age, brand, etc.)Decision Tree Regressor<br />
@@ -165,7 +181,7 @@
         chances being a spam.
       </p>
 
-      <h2 id="lr">
+      <h2 id="linearregression">
         1.1.1
         <a
           href="https://developers.google.com/machine-learning/crash-course/linear-regression"
@@ -312,7 +328,7 @@ y = .1x1000+50=150  // Put x=1000, y=150.
         <b>3. Epochs</b>
       </p>
 
-      <h2 id="logr">
+      <h2 id="LogisticRegression">
         1.1.2
         <a
           href="https://developers.google.com/machine-learning/crash-course/logistic-regression"
@@ -352,6 +368,88 @@ x      z      Sigmoid
           </td>
         </tr>
       </table>
+
+      <h2 id="DecisionTree">
+        1.1.3 Decision Tree / Piecewise / Step Function / Regression Tree
+      </h2>
+      <p>Constant value of y(label) for range of some x(feature) values.</p>
+
+      <table>
+        <tr>
+          <td>
+            <pre><code>
+y
+13 |                         ┌────────── 12.5
+   |                         │
+12 |                         │
+   |                         │
+11 |                         │
+10 |                         │
+ 9 |                         │
+ 8 |          ┌──────────────┘
+   |          │
+ 7 |          │
+ 6 |          │ &lt;&lt;&lt; This is hypothetical
+ 5 |          │
+ 4 |          │
+ 3 |──────────┘
+ 2 |
+ 1 |
+   +---------------------------------------
+     1    2    3    4    5    6    7    8
+                         x
+          </code></pre>
+          </td>
+          <td>
+            There are regions of x(feature), for which y(label) has constant
+            value.
+            <pre><code>
+(1,2),(2,3),(3,4)       For x ≤ 3,         y = (2+3+4)/3 = 3
+(4,7),(5,8),(6,9)       For 3 &lt; x ≤ 6,     y = (7+8+9)/3 = 8
+(7,11),(8,12),(9,13)    For x &gt; 6,         y = (11+12+13)/3 = 12
+        { 3  if x ≤ 3
+y^​(x) = { 8  if 3 &lt; x ≤ 6
+        { 12 if x &gt; 6
+
+if x &lt;= 3.5:
+    prediction = 3
+else if x &lt;= 6.5:
+    prediction = 8
+else:
+    prediction = 12.5
+
+                x ≤ 3?
+              /        \
+          Yes/          \No
+            /            \
+      x ≤ 1.5?          x ≤ 6.5?
+      /     \            /     \
+      ...    ...         ...    ...
+          </code></pre>
+          </td>
+        </tr>
+      </table>
+
+      <h3 id="RandomForestRegression">
+        Random Forest Decision Tree Regression
+      </h3>
+      <p>
+        Summation of several decision trees. Suppose we have 3 decision trees:
+        T<sub>1</sub>(x), T<sub>2</sub>(x), T<sub>3</sub>(x).Each tree gives its
+        own prediction.<br />
+        T<sub>1</sub>(5) = 8<br />
+        T<sub>2</sub>(5) = 10<br />
+        T<sub>3</sub>(5) = 12<br />
+        y<sub>RF</sub>(5) = (T<sub>1</sub>(5) + T<sub>2</sub>(5) +
+        T<sub>3</sub>(5)) / 3 = 10. // The random forest takes their average<br />
+        <b>Random Forest equation</b><br />
+        T<sub>i</sub>​(x) is 1 decision Tree
+      </p>
+      <img
+        src="/images/Machine_Learning/random_forest_decision_tree.png"
+        alt="Random Forest Decision Tree"
+        style="width: 200px; height: 100px"
+      />
 
       <h1>1.2 Classification (Gives yes/no or enums)</h1>
       <p>Example: predict if an email is spam or if a photo contains a cat</p>
@@ -445,7 +543,7 @@ x      z      Sigmoid
         works well with default params
       </dl>
 
-      <h2 id="un">2. Unsupervised Learning</h2>
+      <h1 id="un">2. Unsupervised Learning</h1>
       <h3 id="clustering">2.1 Clustering</h3>
       <p>
         Clustering differs from classification because the categories aren't

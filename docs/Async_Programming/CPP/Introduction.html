@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPP Async Programming</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Async_Programming/CPP/Introduction.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+    <!-- Add any necessary CSS and JavaScript files -->
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Async_Programming/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="#se">Simple Example</a>
+    </aside>
+
+    <!--<article style="margin-left: 200px">-->
+    <article style="margin-left: 200px">
+      <h1>Async Programming in C++</h1>
+
+      <h2><a href="../Introduction.html">Meaning of async?</a></h2>
+
+      <p>
+        <code>std::async</code> run a function asynchronously.<br />
+        <code>std::future&lt;T&gt;</code> is the result of async function, that
+        will be available later<br />
+        <code>std::promise</code> communication channel endpoint between main
+        and async function.<br />
+        &ensp; A promise and its future are two ends of one one-time
+        communication channel
+      </p>
+      <pre><code>We can think future and promise as: write, read end of pipe
+          --------Pipe---------
+future >  |write  async    read| > Read
+          |end   function   end|
+          --------------------</code></pre>
+
+      <h2 id="se">Simple example</h2>
+      <table>
+        <tr>
+          <th>aync, future</th>
+          <th>aync, promise, future</th>
+        </tr>
+        <tr>
+          <td>
+            <pre><code class="language-css">#include &lt;future&gt;
+#include &lt;iostream&gt;
+
+int main() {
+  std::future &lt;int&gt; myFuture = std::async([]() {
+          return 10 * 10;
+      });
+  
+  std::cout &lt;&lt; "Doing other work...\n";
+  
+  // Retrieve the result
+  std::cout &lt;&lt; "The result is: " &lt;&lt; myFuture.get();
+}
+
+$ ./a.out
+Doing other work...
+The result is: 100</code></pre>
+          </td>
+          <td>
+            Promise:<br />
+            - We create a promise<br />
+            - Pass promise to async function - Value is written to
+            promise(inside async function)<br />
+            - Value read outside async using future<br />
+            <pre><code class="language-css">#include &lt;future&gt;
+#include &lt;iostream&gt;
+
+int main() {
+    std::promise &lt;int&gt; myPromise;
+
+    // Get the future linked to that promise
+    std::future &lt;int&gt; myFuture = myPromise.get_future();
+  
+    std::async(std::launch::async, [](std::promise &lt;int&gt; prom) {
+        int res = 10 * 10;
+        prom.set_value(res); // set promise
+    }, std::move(myPromise));
+  
+    std::cout &lt;&lt; "Doing other work...\n";
+  
+    std::cout &lt;&lt; "The result is: " &lt;&lt; myFuture.get();
+}
+            </code></pre>
+          </td>
+        </tr>
+      </table>
+
+      <h2>Async Rust</h2>
+      <p>async, await</p>
+      <pre><code class="language-rust">async fn calculate() -&gt; i32 {
+    20 + 22
+}
+
+#[tokio::main]
+async fn main() {
+    let result = calculate().await;
+    println!("Answer: {result}");
+}</code></pre>
+      <p>
+        C++'s <code>std::promise</code><br />
+        &ensp; Has no twin in Rust.<br />
+        &ensp; We can think <a href="">one-shot channel</a>: the sender produces
+        one value and the receiver awaits it as similar concept
+      </p>
+    </article>
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/common.js"></script>
+  </body>
+</html>

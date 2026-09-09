@@ -1,14 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Queue</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Languages/Programming/C%2B%2B/STL/Containers/Container_Adoptors/queue.html" />
-    <link rel="stylesheet" href="/css/styles.css"/>
-    <link rel="stylesheet" href="/css/prism.css"/>
-</head>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/C%2B%2B/STL/Containers/Container_Adoptors/queue.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
 
-<body>
-        <nav class="navbar">
+  <body>
+    <nav class="navbar">
       <ul>
         <li><a href="/">Home</a></li>
         <li><a href="#">Our team</a></li>
@@ -27,138 +30,130 @@
     <aside class="sidebar"></aside>
 
     <article style="margin-left: 200px">
-    <h1>Queue</h1>
-    <ul>
-      <li>
+      <h1>Queue</h1>
+      <ul>
+        <li>
           <h3><a href="#q">C++ vs Python vs Rust</a></h3>
-      </li>
-    </ul>
+        </li>
+      </ul>
 
-    <h3 id="q">C++ vs Python vs Rust vs Go</h3>
-    <table>
+      <h3 id="q">C++ vs Python vs Rust vs Go</h3>
+      <table>
         <tr>
-            <th></th>
-            <th>C++</th>
-            <th>Rust</th>
-            <th>Python</th>
-            <th>Go</th>
+          <th></th>
+          <th>C++</th>
+          <th>Rust</th>
+          <th>Python</th>
+          <th>Go</th>
         </tr>
         <tr>
-            <td>Declaration</td>
-            <td>queue&lt;int> q;</td>
-            <td><a href="https://amitkumar50.github.io/Languages/Programming/C++/STL/Containers/Seqeunce_Containers/Deque.html">Implemented as VecDeque</a></td>
-            <td>
-                <pre><code class="language-css">
+          <td>Declaration</td>
+          <td>queue&lt;int&gt; q;</td>
+          <td>
+            <a
+              href="https://amitkumar50.github.io/Languages/Programming/C++/STL/Containers/Seqeunce_Containers/Deque.html"
+              >Implemented as VecDeque</a
+            >
+          </td>
+          <td>
+            <pre><code class="language-css">
 import queue
 class Test
     def __init__(self):
         self.q = queue.Queue()
                 </code></pre>
-            </td>
+          </td>
 
-            <td>
-                <pre><code class="=language-css">
+          <td>
+            <pre><code class="=language-css">
 type test struct {
     q []int     //slice to work as queue
 }
                 </code></pre>
-            </td>
+          </td>
         </tr>
 
         <tr>
-            <td>Front</td>
-            <td>q.front()</td>
-            <td></td>
-                <td><pre><code class="language-css">
+          <td>Front</td>
+          <td>q.front()</td>
+          <td></td>
+          <td>
+            <pre><code class="language-css">
 # get() = pop(). returns top
 
 int front = self.q.get();
                 </code></pre>
-            </td>
-            <td>
-q[0]
-            </td>
+          </td>
+          <td>q[0]</td>
         </tr>
 
         <tr>
-            <td>Iterate Queue</td>
-            <td></td>
-            <td></td>
-            <td>
-            </td>
-            <td>
-                <pre><code class="language-css">
-for i:=0; i < len(q); i++ {
+          <td>Iterate Queue</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+            <pre><code class="language-css">
+for i:=0; i &lt; len(q); i++ {
     q[i]
 }
-                <pre></code>
-            </td>
+                </code></pre>
+          </td>
         </tr>
 
         <tr>
-            <td>Push</td>
-            <td>q.push(a)</td>
-            <td></td>
-            <td>
-                <pre><code class="language-css">
+          <td>Push</td>
+          <td>q.push(a)</td>
+          <td></td>
+          <td>
+            <pre><code class="language-css">
 self.q.put(10)
-                <pre></code>
-            </td>
-            <td>
-q.append(x)
-            </td>
+                </code></pre>
+          </td>
+          <td>q.append(x)</td>
         </tr>
 
         <tr>
-            <td>Pop</td>
-            <td>q.pop()</td>
-            <td></td>
-            <td>
-                <pre><code class="language-css">
+          <td>Pop</td>
+          <td>q.pop()</td>
+          <td></td>
+          <td>
+            <pre><code class="language-css">
 # get() = pop(). returns top
 
 int front = self.q.get()
-                </pre></code>
-            </td>
+                </code></pre>
+          </td>
 
-            <td>
-q = q[1:0]    //Remove 1st element,ie top
-            </td>
+          <td>q = q[1:0] //Remove 1st element,ie top</td>
         </tr>
 
         <tr>
-            <td>Size</td>
-            <td>q.size()</td>
-            <td></td>
-            <td>
-                <pre><code class="language-css">
+          <td>Size</td>
+          <td>q.size()</td>
+          <td></td>
+          <td>
+            <pre><code class="language-css">
 self.q.qsize()
-                </pre></code>
-            </td>
-            <td>
-len(q)
-            </td>
+                </code></pre>
+          </td>
+          <td>len(q)</td>
         </tr>
 
         <tr>
-            <td>Check empty</td>
-            <td>!q.empty()</td>
-            <td></td>
-            <td>
-                <pre><code class="language-css">
+          <td>Check empty</td>
+          <td>!q.empty()</td>
+          <td></td>
+          <td>
+            <pre><code class="language-css">
 self.q.empty()
-                </pre></code>
-            </td>
-            <td>
-if len(q) == 0 {
-    return true
-}
-            </td>
+                </code></pre>
+          </td>
+          <td>if len(q) == 0 { return true }</td>
         </tr>
-    </table>
+      </table>
     </article>
 
     <script src="/scripts/prism.js"></script>
-</body>
-
+  </body>
 </html>
