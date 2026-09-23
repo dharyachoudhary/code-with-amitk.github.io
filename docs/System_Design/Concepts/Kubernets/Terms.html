@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>Kubernets Terms</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/System_Design/Concepts/Kubernets/Terms.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Concepts/Kubernets/Terms.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <link rel="stylesheet" href="/css/mermaid.css" />
@@ -329,7 +332,17 @@ spec:
 $ sudo iptables -t nat -A PREROUTING -p tcp --dport 8080 -j REDIRECT --to-port 30080
             </code></pre>
 
+      <h1>PersistentVolume (PV)</h1>
+      <p>
+        The actual physical or cloud hard drive (e.g., an AWS EBS volume or a
+        physical SSD in a server).
+      </p>
+
       <h1 id="pvc">PVC(Persistant Volume Claims)</h1>
+      <p>
+        Ticket or request to use a piece of that hard drive. It specifies how
+        much space you need (e.g., 20GB) and how you need to read/write to it.
+      </p>
       <p>Types of PVC</p>
       <table>
         <tr>

@@ -1,68 +1,79 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>GPU HealthCheck</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Motherboard/GPU/Troubleshooting/Health_Checker.html" />
-    <link rel="stylesheet" href="/css/styles.css"/>
-    <link rel="stylesheet" href="/css/prism.css"/>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Motherboard/GPU/Troubleshooting/Health_Checker.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
     <!-- Add any necessary CSS and JavaScript files -->
-</head>
-<body>
-    <nav class="navbar">    <!--See .navbar in styles.css-->
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="#">Our team</a></li>
-          <li><a href="#">Projects</a></li>
-          <li><a href="/contact.html">Contact</a></li>
-          <li>
-            <form id="searchForm">
-                <input type="search" id="searchInput" name="q" placeholder="Search site" />
-                <input type="submit" value="Go!" />
-            </form>
-           </li>
-        </ul>
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Motherboard/">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
     </nav>
 
-    <aside class="sidebar">    <!--See .sidebar in styles.css-->
-        <a href="#hc">GPU Health Check</a>
+    <aside class="sidebar">
+      <!--See .sidebar in styles.css-->
+      <a href="#hc">GPU Health Check</a>
     </aside>
 
-    <article style="margin-left:200px;">
-        <h3 id="hc">GPU Health Check</h3>
-        <dl>
-            - if memory > 90%. Release memory<br>
-            - if temprature > 85. Add batch delay
-        </dl>
-        <table>
-            <tr>
-                <td>
-1. Set check interval (60 seconds)
-<br><br>
+    <article style="margin-left: 200px">
+      <h3 id="hc">GPU Health Check</h3>
+      <dl>
+        - if memory > 90%. Release memory<br />
+        - if temprature > 85. Add batch delay
+      </dl>
+      <table>
+        <tr>
+          <td>
+            1. Set check interval (60 seconds)
+            <br /><br />
 
-2. check(), if its time to check, _run_checks()
-<br><br>
+            2. check(), if its time to check, _run_checks()
+            <br /><br />
 
-3. _run_checks(). 
-<pre><code>
+            3. _run_checks().
+            <pre><code>
 if memory_used > 90%*memory_total:
     _preemptive_memory_cleanup()
 
 if temp > 85:
     throttle_training()
 </code></pre>
-<br><br>
+            <br /><br />
 
-4. _preemptive_memory_cleanup()
-<pre><code>
+            4. _preemptive_memory_cleanup()
+            <pre><code>
 save_checkpoint()
 reduce_batch_size()
 torch.cuda.empty_cache()
 </code></pre>
-<br>
-What is checkpoint?<br>
-&ensp; A snapshot of the model's complete state at a specific point in training
-&ensp; We will restart from last checkpoint after OOM
-<pre><code>
+            <br />
+            What is checkpoint?<br />
+            &ensp; A snapshot of the model's complete state at a specific point
+            in training &ensp; We will restart from last checkpoint after OOM
+            <pre><code>
 checkpoint      //Checkpoint includes
 {
     'epoch': 10,                                        #Current epoch
@@ -72,14 +83,15 @@ checkpoint      //Checkpoint includes
     'batch_index': 3250                                 #batch index
 }
 </code></pre>
-<br><br>
+            <br /><br />
 
-5. _throttle_training(). Insert delay within training<br>
-- Reduces GPU utilization by spacing out workloads<br>
-- Allows cooling between computations<br>
-- Automatically adjusts based on temperature readings
-                </td>
-                <td><pre><code class="language-css">
+            5. _throttle_training(). Insert delay within training<br />
+            - Reduces GPU utilization by spacing out workloads<br />
+            - Allows cooling between computations<br />
+            - Automatically adjusts based on temperature readings
+          </td>
+          <td>
+            <pre><code class="language-css">
 batch_delay = 0  # Seconds between batches
 def train_loop():
     global batch_delay
@@ -136,12 +148,13 @@ def _throttle_training(self):
 
 HealthChecker h
 h.check()
-                </code></pre></td>
-            </tr>
-        </table>
+                </code></pre>
+          </td>
+        </tr>
+      </table>
     </article>
 
     <script src="/scripts/prism.js"></script>
     <script src="/scripts/common.js"></script>
-</body>
+  </body>
 </html>

@@ -1,8 +1,11 @@
 <!doctype html>
 <html>
   <head>
-    <title>ZTNA — Zero Trust Network Access</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Networking/Terms/ZTNA.html" />
+    <title>ZTNA</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Networking/Terms/ZTNA.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/mermaid.css" />
   </head>
@@ -42,20 +45,17 @@
     </aside>
 
     <article style="margin-left: 200px">
-      <h2 id="what">ZTNA (Zero Trust Network Access)</h2>
+      <h1 id="what">ZTNA (Zero Trust Network Access)</h1>
       <p>
-        <b>What?</b><br />
         ZTNA is a security model that gives users access to
         <b>specific private applications</b> without putting them on the full
         corporate network. <br />
-        Example: Company employee want to access Jira, then providing access to
-        this application only is ZTNA.<br />
+        Example: Company employee want to access Jira only(no other
+        application), then providing access to this application only is ZTNA.<br />
         <b>Core idea:</b> “Never trust, always verify.” A user on a home laptop
-        or at an airport gets the same scrutiny as someone in a branch
-        office.<br />
-        In a full <a href="Gartner Terms.html#sase">SASE</a> stack you often
-        deploy <b>both</b>: SWG for SaaS/web, ZTNA for internal applications.
+        or at an airport gets the same scrutiny as someone in a branch office.
       </p>
+
       <h3 id="example">Example</h3>
       <p>
         A bank employee working from home needs the internal loan-processing app
@@ -66,8 +66,6 @@
         MFA, passes device compliance check → broker opens access only to
         <code>loan-app.internal.bank</code> → traffic flows through an app
         connector; no VPN, no broad network access.<br />
-        The same employee browsing Google or uploading a file to personal Gmail
-        is handled by <b>SWG</b>, not ZTNA.<br />
         <b>Vendor Examples</b><br />
         <a href="https://www.zscaler.com/products/zscaler-private-access"
           >Zscaler Private Access (ZPA)</a
@@ -93,16 +91,11 @@
         <tr>
           <td>
             User joins the <b>entire</b> corporate network (Layer 3 tunnel)<br />
-            Once connected, user can often reach many subnets<br />
-            Trust is tied to “being on VPN”
+            Once connected any service
           </td>
           <td>
             User connects only to a <b>broker</b> (cloud or on-prem)<br />
-            Broker opens a narrow path to <b>one approved app</b> at a time<br />
-            Policy checks identity + device + risk on every session<br />
-            Apps are hidden from the public internet (no inbound open ports)<br />
-            User never joins the full corporate network — only the approved app
-            path is opened.
+            Broker opens a narrow path to <b>one approved app</b>
           </td>
         </tr>
       </table>
@@ -130,14 +123,7 @@ flowchart LR
         </pre>
       </div>
 
-      <h3 id="vs-swg">ZTNA vs SWG (Secure Web Gateway)</h3>
-      <p>
-        Both often appear in the same
-        <a href="Gartner Terms.html#sse">SSE</a> product (see the Netskope SASE
-        diagram on <a href="Gartner Terms.html#sase">Gartner Terms</a> — ZTNA
-        and SWG sit side by side in the POP). They solve
-        <b>different traffic problems</b>.
-      </p>
+      <h1 id="vs-swg">ZTNA vs SWG (Secure Web Gateway)</h1>
       <table>
         <tr>
           <th></th>
@@ -201,7 +187,7 @@ flowchart LR
         </tr>
       </table>
 
-      <h3 id="vs-ztfp">ZTNA vs Zero Trust Forward Proxy (ZTFP)</h3>
+      <h1 id="vs-ztfp">ZTNA vs Zero Trust Forward Proxy (ZTFP)</h1>
       <p>
         A <b>Zero Trust Forward Proxy</b> applies zero-trust principles to
         <b>outbound</b> HTTP/HTTPS traffic — the same path as an

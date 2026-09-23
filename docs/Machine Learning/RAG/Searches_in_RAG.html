@@ -1,0 +1,217 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Searches in RAG</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Machine%20Learning/RAG/Searches_in_RAG.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Machine Learning">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+    <aside class="sidebar">
+      <a href="#keyword">1. Keyword Search</a>
+      <ul>
+        <li><a href="#tfidf">1. TF-IDF</a></li>
+        <li><a href="#bm25">2. BM25</a></li>
+      </ul>
+      <a href="#semantic">2. Semantic Search</a>
+      <a href="#semantic">3. Hybrid Search</a>
+      <a href="#code">Code</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1>Searches in RAG</h1>
+      <p>
+        Documents has to be fed to chunker in Retrieval Phase, so that these
+        provide context to LLM when query is asked by user. <br />
+        But only relevant documents if fed would be helpful<br />
+        Before feeding the documents to chunker, we should select the relevant
+        documents, Hence we do searching.<br />
+        There are 2 types of searches in RAG for finding the relevant docs to
+        feed chunker:<br />
+        1. Keyword search<br />
+        2. Semantic Search
+      </p>
+
+      <h2 id="keyword">1. Keyword/Lexical Search</h2>
+      <p>
+        This looks for
+        <b>the same words</b> in the query and in the documents.<br />
+        It does <b>not</b> understand meaning. If the word is not present, the
+        chunk is not a match.<br />
+        Example: query says <code>OUTBOUND_BLOCK</code> → it finds
+        documents/chunks that contain the token
+        <code>OUTBOUND_BLOCK</code>.<br />
+        Query says <code>why is internet blocked</code> → keyword search may
+        miss a chunk that only says <code>DENY dst=8.8.8.8</code>, because the
+        words are different even though the meaning is the same.
+      </p>
+      <pre><code class="language-css">
+User query:  "Show firewall policies blocking outbound traffic"
+                  |
+                  |  split into words (tokens)
+                  \/
+tokens = [show, firewall, policies, blocking, outbound, traffic]
+                  |
+                  |  look for these words inside chunks
+                  \/
+Chunk A  FIREWALL_DENY ... policy=OUTBOUND_BLOCK     ← match: firewall, outbound
+Chunk B  Policy OUTBOUND_BLOCK denies outbound traffic ← match: policy, outbound, traffic
+Chunk C  VPN_LOGIN_FAILED user=john.doe              ← no useful word match
+                  |
+                  \/
+top-k chunks (A, B) go into the augmented prompt → LLM answers
+      </code></pre>
+      <p>
+        TF-IDF and BM25 are the two common ways to <b>score</b> those keyword
+        matches (which chunk is a better match).
+      </p>
+
+      <h3 id="tfidf">
+        1. TF-IDF (Term Frequency − Inverse Document Frequency)
+      </h3>
+      <p>
+        <b>1. TF(Term Frequency):</b><br />
+        - How often does this word appear in this chunk?<br />
+        - More times in this chunk → this chunk is more about that word.<br />
+
+        <b>2. IDF(Inverse Document Frequency)</b><br />
+        - How rare is this word in all documents?<br />
+        - More rare the word is, it matters more. Rare words (OUTBOUND_BLOCK)
+        matter more than common words (the, deny, policy)
+      </p>
+      <pre><code>TF(word, chunk)  =  count of word in chunk  /  total words in chunk
+IDF(word)        =  log( N / df(word) )
+TF-IDF           =  TF × IDF
+chunk_score      =  sum of TF-IDF for every query word</code></pre>
+
+      <h3 id="bm25">2. BM25 (Best Matching 25)</h3>
+      <p>
+        This is used by Elasticsearch, OpenSearch, Lucene<br />
+        <b>Rules for BM-25:</b><br />
+        1. Same idea as TF-IDF (rare matching words matter more)<br />
+        2. It guards against<br />
+        &ensp; <u>2a. Term frequency saturation(k1 ≈ 1.2 to 2.0)</u> That means
+        overly repeated words. if there are 20 documents and mentions
+        FIREWALL_DENY, then TF-IDF will count the score as wordx20<br />
+        &ensp; <u>2b. Document length normalization (b ≈ 0.75)</u> A short,
+        exact match (one FIREWALL_DENY line) is not punished just because it is
+        short. Long documents are slightly penalized.
+      </p>
+
+      <pre><code class="language-css">Formula for BM25(chunk, query) =
+  sum over each query word qi:
+
+      IDF(qi)  ×  (tf × (k1+1)) / (tf + k1 × (1 − b + b × |D|/avgdl))
+
+  tf     = how many times qi appears in this chunk
+  |D|    = length of this chunk
+  avgdl  = average chunk length in the index
+  k1     = saturation (typical 1.2)
+  b      = length penalty (typical 0.75)</code></pre>
+
+      <p>You do not need to memorize the formula. Remember the behavior:</p>
+      <pre><code class="language-css">Query: OUTBOUND_BLOCK
+
+Short exact log line
+  FIREWALL_DENY policy=OUTBOUND_BLOCK          ← BM25 likes this
+
+Huge handbook that says "outbound" 50 times
+  Chapter 9: outbound routing, outbound NAT,   ← TF-IDF may over-rank this
+  outbound VPN, outbound ...                   ← BM25 damps the repeats</code></pre>
+
+      <h2 id="semantic">2. Semantic Search</h2>
+      <p>
+        Semantic search uses <a href="../Terms.html">Vector Embeddings</a> to
+        find documents which have closely meaning words as mentioned in
+        Prompt.<br />
+        It converts User's query and Documents into vectors on embedding space,
+        similar meaning words are placed together in embedding space.<br />
+        This determine how close each document is to your query<br />
+        Sort the documents by their similarity score and select the top few as
+        the most relevant<br />
+        Two Methods to find distance between words
+      </p>
+      <h3>1. Cosine Similarity</h3>
+      <p>
+        This evaluates how close two vectors are based on their angle.<br />
+        if Cosine Similarity is the closer to 1, that means two words are more
+        similar<br />
+        <br />Measures the cosine of the angle θ(Range: -1.0 to 1.0) between two
+        vectors:
+      </p>
+      <pre><code>
+cosine similarity = vector1 x vector2 / |vector1| x |vector2|
+      </code></pre>
+
+      <h3>2. Euclidian Distance</h3>
+      <p>
+        This calculates the "straight-line" distance between two vectors(range 0
+        to ∞) in the embedding space<br />
+        Similar words have a smaller euclidian distance
+      </p>
+      <pre><code>
+                      2            2
+d = underroot (x1 - x2) / (y1 - y2)
+      </code></pre>
+      <h4>Code</h4>
+      <p>
+        <a
+          href="https://github.com/code-with-amitk/Code-examples/blob/master/Machine_Learning/Embeddings/Code/CosineSimilarity_EuclidianDistance_between_Embeddings.adoc"
+          >Calculate cosine similarity, Euclidian distance 1 embedding from
+          other</a
+        >
+      </p>
+
+      <h2>3. Hybrid Search(Keyword+Semantic)</h2>
+      <p>
+        Supposer, Keyword search provided 10 relevant documents and semantic
+        search provided 10 documents.<br />
+        Algorithm for combining these documents is called
+        <b>Reciprocal Rank Fusion</b>
+      </p>
+      <h3>Reciprocal Rank Fusion (RRF)</h3>
+      <p>
+        We can search documents using both techniques(Keyword, semantic)<br />
+        But documents get ranking based on position in each list<br />
+        Each document scores 1/ranking.
+      </p>
+      <pre><code>Place   Rank
+1st     1/1=1
+2nd     1/2=0.5
+
+Document-X gets Rank=2(Keyword Search)=1/2=.05, Rank=10(Semantic Search)=1/10=0.1
+Total Score= 0.6</code></pre>
+      <p>These scores are used to re-rank all the documents</p>
+
+      <h2 id="code">Code</h2>
+      <p>
+        <a
+          href="https://github.com/code-with-amitk/Code-examples/blob/master/System-Design/Concepts/Databases/Vector_DB/Weaviate/client.adoc#knn-search"
+          >Perform Semantic, Hybrid search in vector DB Weaviate</a
+        >
+      </p>
+    </article>
+    <script src="/scripts/prism.js"></script>
+  </body>
+</html>

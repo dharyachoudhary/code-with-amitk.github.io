@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Threat Modelling, OWASP, STRIDE</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Networking/OSI-Layers/Layer-3/Security/Threat_Modelling.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Networking/OSI-Layers">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <!--See .sidebar in styles.css-->
+      <a href="#what">Threat Modelling</a>
+      <a href="#frameworks">Frameworks</a>
+      <a href="#process">Process</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="what">Threat Modelling</h1>
+      <p>
+        Structured process of identifying and mitigating threats &
+        vulnerabilities at Design Phase
+      </p>
+
+      <h1 id="frameworks">Frameworks for Threat Modelling</h1>
+      <h2>1. STRIDE (by microsoft)</h2>
+      <p>
+        It categorizes threats into six areas:<br />
+        1. Spoofing: Pretending to be someone else—e.g., faking user identity<br />
+        2. Tampering: Modifying data on a disk or in transit<br />
+        3. <a href="">Repudiation</a>: Claiming you didn’t perform an action
+        because there are no logs<br />
+        4. Information Disclosure: Exposing data to unauthorized users<br />
+        5. Denial of Service: Crashing or flooding the system to block valid
+        users<br />
+        6. Elevation of Privilege: An unprivileged user gaining admin rights
+      </p>
+
+      <h1 id="process">Threat Modeling Process</h1>
+      <h2>Step-1: Data Flow Diagram (DFD)</h2>
+      <p>
+        <b>1. Create a Data Flow Diagram (DFD)</b> Using OWASP Threat Dragon
+        (Free modeling tool)<br />
+      </p>
+      <table>
+        <tr>
+          <td>
+            <img
+              src="/images/Security/OWASP_elements.webp"
+              alt="STRIDE Threat Model"
+              style="width: 600px; height: 150px"
+            />
+          </td>
+          <td>
+            <b>5 Elements in OWASP</b><br />
+            a. Process: Application<br />
+            b. Data Stores: Databases, files and logs<br />
+            c. External Entity (Actor): Objects outside the system that the
+            system communicates with<br />
+            d. Data Flow: Flow of information<br />
+            e. Trust Boundary: A logical or physical line separating different
+            zones of privilege, trust levels, or security contexts
+          </td>
+        </tr>
+      </table>
+
+      <p>
+        <b>2. Threat Model every Element:</b> Once DFD is complete, mark each
+        element again STRIDE.
+      </p>
+      <img
+        src="/images/Security/STRIDE_threat_model.webp"
+        alt="STRIDE Threat Model"
+        style="width: 300px; height: 150px"
+      />
+    </article>
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/common.js"></script>
+  </body>
+</html>

@@ -1,8 +1,13 @@
 <!doctype html>
 <html>
   <head>
-    <title>RAG</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Machine%20Learning/RAG/Introduction.html" />
+    <title>
+      RAG, Retreiver, Chunk, Augmentation, Generation, Precision, Recall
+    </title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Machine%20Learning/RAG/Introduction.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
   </head>
@@ -27,11 +32,13 @@
     <aside class="sidebar">
       <a href="#what">RAG?</a>
       <a href="#pipeline">RAG Pipeline</a>
-      <a href="#flow">RAG Flow</a>
       <a href="#code">Code</a>
       <ul>
         <li><a href="#ex1">User asking query from LLM</a></li>
       </ul>
+      <a href="#evaluate">Evaluating RAG Pipeline</a>
+      <a href="#Chunking">Chunking</a>
+      <a href="#QueryRewriting">User Query Rewriting</a>
     </aside>
 
     <article style="margin-left: 200px">
@@ -45,12 +52,23 @@
           >vector database</a
         >, SQL Db, Graph DB, Web Search engines) & feed to AI generation
         process.<br />
-        <b>Purpose of RAG?</b> To give more Context to LLM models to predict better<br>
-        <a href="/Machine Learning/Terms.html#vector">What is vector?</a><br>
+        <b>Purpose of RAG?</b> To give more Context to LLM models to predict
+        better<br />
+        <a href="/Machine Learning/Terms.html#vector">What is vector?</a><br />
         <a href="/Machine Learning/Terms.html#em">What is Embedding Model?</a>
       </p>
 
       <h2>RAG Pipeline</h2>
+      <p>
+        <a
+          href="https://github.com/code-with-amitk/Code-examples/blob/master/Machine_Learning/RAG_Pipeline/README.md"
+          >RAG pipeline on firewall,vpn logs:</a
+        ><br />
+        &ensp; We have log files(eg: VPN, firewall).<br />
+        &ensp; RAG pipeline will read log files and provide answers to
+        Administrator questions.
+      </p>
+
       <table>
         <tr>
           <td>
@@ -95,290 +113,223 @@ augmented_prompt --→ | GPT5.0  | --→ Reponse (less hallucinations)
           </td>
           <td>
             <b>1. The Retrieval Phase:</b> <br />
-            &ensp; Chunking: Raw documents are broken down into smaller,
-            readable pieces.<br />
-            &ensp; Embedding: These text chunks are converted into mathematical<br>
-            representations (vectors) using an embedding model.<br />
-            &ensp; Vector Search: User asks a question, system searches vector
+            &ensp; Chunks: Raw documents are broken down into chunks. Chunk =
+            actual log + meta data<br />
+            &ensp; Embedding: Find
+            <a href="/Machine Learning/Terms.html#embeddings">embedding</a> of
+            content of every chunk<br />
+            &ensp; Store Embedding: Store {embedding, actual_log, meta_data}
+            into vector database(pinecone) or list in RAM
             <br /><br />
 
             <b>2. The Augmentation Phase:</b><br />
-            &ensp; Once the relevant information is retrieved, it isn't just
-            displayed. It is packaged.<br />
-            &ensp; The system takes the user’s original query and the retrieved
-            text chunks
+            &ensp; Find embedding for user query<br />
+            &ensp; Find closeness of user's query embedding with stored logs
+            embeddings using Semantic Search
+            <a href="/Machine Learning/RAG/Searches_in_RAG.html#semantic"
+              >Cosine similarity or euclidian distance</a
+            ><br />
+            &ensp; Take top k closest log files to user's query embeddings
             <br /><br />
 
             <b>3. The Generation Phase</b><br />
-            &ensp; This combined prompt (the user's query + the retrieved<br>
-            context) is fed into the LLM. <br />
-            &ensp;This forces the model to synthesize an answer based only on<br>
+            &ensp; Using embedding, Get actual_log from vector database(stored
+            in Retrieval Phase)<br />
+            &ensp; Join actual user query, top k files retrieved using
+            embeddings as string, because to LLM embeddings are of no meaning.
+            This is combined prompt<br />
+            &ensp; This combined prompt (the user's query + Top k matching logs)
+            is fed into the LLM. <br />
+            &ensp; This forces the model to synthesize an answer based only
+            on<br />
             the provided external data, which drastically reduces hallucinations
           </td>
         </tr>
       </table>
 
-      <h2 id="flow">RAG Flow</h2>
+      <h2 id="evaluate">Evaluating RAG Pipeline</h2>
+      <p>
+        Evaluating a RAG pipeline requires measuring<br />
+        1. How well Retriever fetches relevant logs (Recall/Precision) and<br />
+        2. How accurately Generator synthesizes the answer (Faithfulness/Answer
+        Relevance).
+      </p>
+
+      <h3>1. Precision</h3>
+      <p>Measures how many returned documents are relevant<br /></p>
+      <pre><code>Precision = (Relevant documents retrieved)/(Total number of documents retrieved)
+if total documents retrieved = 10
+Relevant Documents = 5
+So Precision = 5/10 = 50%</code></pre>
+
+      <h3>2. Recall</h3>
+      <p>How many relevant documents are returned</p>
+      <pre><code>
+Recall = (Relevant documents retrieved)/(Total relevant documents)
+Total Relevant documents = 5
+Retrieved = 2. Recall = 2/5 = 40%</code></pre>
+
+      <h1 id="Chunking">Chunking</h1>
+      <p>
+        Breaking the longer text document into smaller chunks<br />
+        <b>Reasons of Chunking:</b><br />
+        1. Token Limit: Many embedding models have limit on amount of text they
+        can convert to vectors<br />
+        2. Improve search relevancy<br />
+        3. Ensures we are only sending relevant text from document to the LLM.
+      </p>
+
+      <h3>Problem without Chunking</h3>
+      <p>
+        Let's suppose we have 1000 pdfs(ie books) and we are creating a vector
+        embedding for each book.<br />
+        Issue is we are compressing entire book into 1 vector, These vectors
+        will not represent contents of any chapter/keyword/page precisely. These
+        are just generic vectors<br />
+        HENCE we want to take a book and chunk into smaller pages or paragraph
+        or Sentence. Vector DB will have 1 million paragraphs instead of 1000
+        books.<br />
+
+        <b>What chunk size should be taken?</b><br />
+        - <u>Too Big:</u> if chunks are big as 4-5 chapters then it does not
+        make sense to create chunks.<br />
+        - <u>Too Small:</u> Chuking at word level. vectors will loose context of
+        surrounding words/paragraphs/sentences which reduces search relevance
+      </p>
+
+      <h2>Chunking Techniques</h2>
+      <h3>1. Fixed Size</h3>
+      <p>
+        We choose fixed size and we chunk the document at that fixed size
+        words.<br />
+        Issue in this approach is, chunk boundary can fall on middle of word,
+        middle of sentence etc, which again looses the nearness context.
+      </p>
+      <pre><code>1-250(chunk-1), 250-500(chunk-2), 500-750(chunk-3)</code></pre>
+
+      <h3>2. Overlapping Chunking</h3>
+      <p>
+        Chunk-1(paragraph 1), Chunk-2(some part of paragraph-1 + paragraph-2 +
+        Some part of paragraph-3)
+      </p>
       <img
-        src="//www.plantuml.com/plantuml/png/TP5FQnin4CNl-XI3Uqa8IUw6XgJk7m8E3KbRA1YCl7gnHQNHLgDrx7xwIhjgx6sRmyBgpMX-UlEk9UcOEk-KqaqAaRJnbabB_L6hiAC7f6YnHQJxZHRGcxbTRz9ihrcr-RPjRAiv4NovDtcAmPDpskkbPOFT1VmAnbXUoqLemThIWgrlGqpqEPzlRZ_yQLZmWbyET1SCt6I4s9hL_nbDY3YC_ORYvJ5_k2tbCdVGwFsxYG8RohvKR-wcMtSUd7IoWKS6lyEvy3pYH-dnZTCYUItI1XOyxZbj8FONueB9ibW3-jaXxfVWjMNyHVm4HXpXxYt_676S6tPvR35hhosm-9lFxmwS6kPNGInpEgM6EC-l27vA7m533_gPJ6Xwyt9YTDAdYaC2XP8ql9f5w7py0fOGvN9OeFICqgVWoxmSoPIsjQPKLxGeK-eoUzblGPNKgbeRBpaOI7cbtHP6lXg5pcjJ1UkQ3CoopNctATl-LtoRHJgPXIpjqjc1UbPHfyhWcDE3hig6fqV3wakpMehTz2LS2ayqrDGrs7JU_GO0"
-        alt="RAG" style="width:700px;height:350px;"
+        src="/images/Machine_Learning/RAG/Overlapping_Chunking.png"
+        alt="Overalpping chuking"
+        style="width: 300px; height: 200px"
       />
-            <pre class="puml" visibility: hidden>
-@startuml
 
-actor admin as admin 
-box Retriever Phase #LightCyan
-participant em as "from llama_index.embeddings.openai \nimport OpenAIEmbedding\n\nEmbedding Model"
-participant vdb as "from llama_index.core \nimport VectorStoreIndex\n\nVector DB"
-end box
-
-box Augumentation Phase #LightYellow
-participant rs as "class ResponseSynthesizer\n inside query_engine"
-end box
-
-box Generation Phase #Pink
-participant llm as "llama_index.llms.openai \nimport OpenAI\n\nLLM"
-end box
-
-actor User as u
-
-admin -> em: Feed Raw documents(data)
-note over em
-Create Tensors/Vectors
-end note
-em -> vdb: vectors
-
-
-u -> rs: user_query
-vdb -> rs: vectors/nodes
-activate rs
-rs --> rs: Create augumented_prompt \n augumented_prompt=\n  (Context+user_query+vectors)
-deactivate rs
-
-rs -> llm: augumented_query
-llm -> u: Response of query
-
-@enduml
-            </pre>
-
-<h2 id="code">RAG Pipeline Code</h2>
-      <h3 id="ex1">User queries from security logs</h3>
+      <h3>3. Recursive Character Splitting</h3>
       <p>
-        We have log files(eg: VPN, firewall).<br>
-        RAG pipeline will read log files and provide answers to Administrator questions.
+        Splitting text into chunks at specified characters, eg: Newline
+        characters. This gives variable chunk size, ie we can have very large or
+        very small chunk sizes depending on newline character location.<br />
       </p>
-      <table>
-        <tr>
-          <td>
-<pre><code class="language-css">
-./logs/vpn.log
-2025-05-01 VPN_LOGIN_FAILED user=john.doe ip=185.22.11.4
-2025-05-01 VPN_LOGIN_FAILED user=john.doe ip=185.22.11.4
 
-./logs/firewall.log
-2025-05-01 FIREWALL_DENY src=10.1.1.5 dst=8.8.8.8 policy=OUTBOUND_BLOCK
-2025-05-01 FIREWALL_DENY src=10.1.1.6 dst=1.1.1.1 policy=OUTBOUND_BLOCK
-
-┌─────────────┐     ┌──────────────────┐     ┌────────────────┐
-│  RETRIEVAL  │ ──► │   AUGMENTATION   │ ──► │  GENERATION    │
-│  (indexing  │     │  (build prompt   │     │  (LLM writes   │
-│   + search) │     │   with context)  │     │   the answer)  │
-└─────────────┘     └──────────────────┘     └────────────────┘
-     setup               as_query_engine           .query()
-
-$ cat rag_pipeline.py
-import os
-import dotenv
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
-from llama_index.llms.openai import OpenAI		#Import LLM
-from llama_index.core import Settings
-
-# Load GitHub Token and set env
-dotenv.load_dotenv()
-if not os.getenv("GITHUB_TOKEN"):
-    raise ValueError("GITHUB_TOKEN is not set")
-os.environ["OPENAI_API_KEY"] = os.getenv("GITHUB_TOKEN")
-os.environ["OPENAI_BASE_URL"] = "https://models.inference.ai.azure.com/"
-
-############## 1. Retrieval Phase Start #################
-#                            |------ Chunking ------------------|
-# documents (2 log files) -> |Split sentence into small pieces  |
-#                            | (1 doc = 1 Node)                 |
-#                            |----------------------------------|
-#                                            \/
-#                            |-------- Embedding ---------------|
-#                            |For each chunk (batch of 150):    |
-#                            | Create float vector/chunk        |
-#                            |----------------------------------|
-#                                           \/
-#                            |-- vector db (in memory default) -| 
-#                            |Stores: (embedding, text, meta)   |
-#                            |stored in RAM(default) not disk   |
-#                            |----------------------------------|
-#                                           \/
-#                                         index  ← searchable index object
-#VectorStoreIndex (variable: index)
-#    │
-#    ├── docstore          → stores Node objects (chunk text + metadata)
-#    │     e.g. Node 0: "2025-05-01 08:01:05 VPN_LOGIN_FAILED user=john.doe..."
-#    │     e.g. Node 1: "2025-05-01 08:02:11 FIREWALL_DENY src=10.1.1.5..."
-#    │
-#    ├── vector_store      → stores embedding vectors for each node
-#    │     e.g. [0.012, -0.034, 0.891, ...]  (1536 floats per chunk)
-#    │
-#    └── index_struct      → maps node IDs → vector store locations
-#
-## A. Setup Embedding Model. This is Neural Network	
-/Machine%20Learning/Terms.html#Neural_Network
-embed_model = OpenAIEmbedding
-    model="text-embedding-3-small",
-    api_key=os.getenv("OPENAI_API_KEY"),
-    api_base=os.getenv("OPENAI_BASE_URL"),
-)
-Settings.embed_model = embed_model
-
-## B. Break documents into Chunks
-documents = SimpleDirectoryReader("./logs").load_data()
-
-## C. Chunking, embedding, local vector store
-# def from_documents(documents, insert_batch_size=150): 
-#   nodes = self._chunk_documents(documents) #chunks the documents into Nodes
-#   for batch in batches(nodes, batch_size=insert_batch_size):
-#       texts = [node.text for node in batch]
-#       embeddings = Settings.embed_model.get_text_embedding_batch(texts)
-#       self._vector_store.add(embeddings, metadata=batch.metadata) #Store Tensors into the vector DB
-index = VectorStoreIndex.from_documents(documents, insert_batch_size=150)
-############## Retrieval Phase End #####################
-
-# Create LLM
-llm = OpenAI(
-    model="gpt-4o-mini",
-    api_key=os.getenv("OPENAI_API_KEY"),
-    api_base=os.getenv("OPENAI_BASE_URL"),
-)
-
-############## 2. Augumentation Phase Start #################
-# index from vectordb
-#     \/
-#   search vector index
-#     \/
-#   get top-k chunk texts [Node1][Node2][Node3]..[Nodek]
-#     |
-#     |
-#     -----------------------→ LLM &lt;------ User's Query
-#                                             (Why is john.doe unable to connect to VPN?)
-#   
-# venv/lib/python3.10/site-packages/llama_index/core/indices/base.py
-# def as_query_engine(self, llm: Optional[LLMType] = None, **kwargs: Any)
-#     RetrieverQueryEngine(kwargs) 
-
-query_engine = index.as_query_engine(
-  llm=llm
-)
-
-############## 3. Generation Phase Start #################
-response = query_engine.query("Show firewall policies blocking outbound traffic")
-print(response)
-Response=
-The firewall policies blocking outbound traffic are as follows:
-
-1. Policy: OUTBOUND_BLOCK
-   - Source: 10.1.1.5
-   - Destination: 8.8.8.8
-
-2. Policy: OUTBOUND_BLOCK
-   - Source: 10.1.1.6
-   - Destination: 1.1.1.1
-
-response = query_engine.query("Why is john.doe unable to connect to VPN?")
-print(response)
-Response=
-john.doe is unable to connect to the VPN due to repeated login failures, as 
-indicated by the log entries showing two instances of VPN_LOGIN_FAILED for the user.
-############## Augumentation & Generation Phase End #################
-      </code></pre>
-          </td>
-          <td>
-            Actual Code<br>
-            <pre><code class="language-css">
-import os
-import dotenv
-from llama_index.core import Settings, SimpleDirectoryReader, VectorStoreIndex
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.llms.openai import OpenAI
-
-def configure_environment() -> None:
-    """Load credentials and configure OpenAI-compatible API access."""
-    dotenv.load_dotenv()
-    if not os.getenv("GITHUB_TOKEN"):
-        raise ValueError("GITHUB_TOKEN is not set")
-    os.environ["OPENAI_API_KEY"] = os.getenv("GITHUB_TOKEN")
-    os.environ["OPENAI_BASE_URL"] = "https://models.inference.ai.azure.com/"
-
-def main() -> None:
-    configure_environment()
-
-    ######## 1. Retrieval Phase ############
-    embed_model = OpenAIEmbedding(
-        model="text-embedding-3-small",
-        api_key=os.getenv("OPENAI_API_KEY"),
-        api_base=os.getenv("OPENAI_BASE_URL"),
-    )
-    Settings.embed_model = embed_model
-
-    documents = SimpleDirectoryReader(logs_dir).load_data()
-    index = VectorStoreIndex.from_documents(documents, insert_batch_size=150)
-    ######## Retrieval Phase End ############
-
-    llm = OpenAI(
-        model="gpt-4o-mini",
-        api_key=os.getenv("OPENAI_API_KEY"),
-        api_base=os.getenv("OPENAI_BASE_URL"),
-    )
-
-    ######## 2. Augumentation Phase ############
-    query_engine = index.as_query_engine(llm=llm, similarity_top_k=3)
-    ######## Augumentation Phase End ############
-
-    demo_questions = [
-        "Show firewall policies blocking outbound traffic",
-        "Why is john.doe unable to connect to VPN?",
-    ]
-
-    ######## 3. Generation Phase ############
-    for q in demo_questions:
-        response = query_engine.query(query_engine, q)
-        contexts = [node.node.get_content() for node in response.source_nodes]
-        print(f"\nQuestion: {response['question']}")
-        print(f"Answer: {response['answer']}")
-        print(f"Retrieved {len(response['contexts'])} context chunk(s)")
-
-if __name__ == "__main__":
-    main()
-
-            </code></pre>
-          </td>
-        </tr>
-      </table>
-      
+      <h3>4. Based on Type of Document</h3>
       <p>
-      <b>Nodes created during chunking step</b><br>
-      <pre><code class="language-css">
---- Node 1 ---
-Chunk Text:  22.11.4 dst=10.1.1.20 policy=INBOUND_BLOCK
-2025-05-01 11:41:55 FIREWALL_DENY src=10.1.1.6 dst=4.2.2.2 policy=OUTBOUND_BLOCK
-2025-05-01 11:55:22 FIREWALL_DENY src=172.16.0.9 dst=198.51.100.5 policy=POR
-Metadata:  {'file_path': '/home/amit/RAG_Pipeline_Evaluation_Workbench/logs/firewall.log', 'file_name': 'firewall.log', 'file_size': 2363, 'creation_date': '2026-06-25', 'last_modified_date': '2026-06-25'}
---------------------------------
---- Node 2 ---
-Chunk Text:  2025-05-01 08:01:05 VPN_LOGIN_FAILED user=john.doe ip=185.22.11.4
-2025-05-01 08:03:44 VPN_LOGIN_FAILED user=john.doe ip=185.22.11.4
-2025-05-01 08:06:12 VPN_LOGIN_FAILED user=john.doe ip=185.22.11.4
-20
-Metadata:  {'file_path': '/home/amit/RAG_Pipeline_Evaluation_Workbench/logs/vpn.log', 'file_name': 'vpn.log', 'file_size': 1906, 'creation_date': '2026-06-25', 'last_modified_date': '2026-06-25'}
-      </code></pre>
+        - HTML Document can be splitted using HTML tag types. h1, h2 all in
+        seperate chunks<br />
+        - Code(eg: Python) Seperate functions can be splitted into seperate
+        chunks
       </p>
+
+      <h3>5. Semantic Chunking</h3>
+      <p>
+        In a paragraph there can be 4-5 sentences.<br />
+        In this type of chunking, we find similarity/nearness/closeness of
+        meaning of 1 sentence to next sentence in the same paragraph. if they
+        are similar they will be placed in same chunk<br />
+        <b>How?</b> embedding is found for every sentence in the paragraph and
+        if (embedding of sentence-1 - embdedding of sentence-2) is below a
+        certain threshold they have similar meaning and are put in same
+        chunk.<br />
+        <b>Advantages:</b><br />
+        1. Variable sized chunks that follow train of thought of author<br />
+        <b>Disadvantages</b><br />
+        1. Can be expensive as we are calculating embeddings of every sentence
+        in paragraph<br />
+        2. Repeated embeddings calculations.
+      </p>
+
+      <h3>6. Language Based Chunking</h3>
+      <p>
+        We provide document to LLM to create chunks. Along with documents
+        additional instructions are provided to LLM to create chunks(eg: Keep
+        concepts together, add breaks when new topic starts)
+      </p>
+
+      <h3>7. Context Aware Chunking</h3>
+      <p>Add context(eg: summary) to every chunk.</p>
+
+      <h1 id="QueryRewriting">User Query Rewriting</h1>
+      <p>
+        Production RAG systems does not provide direct query asked by user to
+        the RAG system.<br />
+        RAG systems are written for interacting with humans in natural language,
+        but human writeen prompts are BAD search queries<br />
+        Rather than feeding those prompts directly to the system, retriever can
+        parse the prompt to identify its intent, EDIT/REWRITE/OPTIMIZE the
+        prompt for retrieval
+      </p>
+
+      <h2>Query Parsing Techniques</h2>
+      <h3>1. Query Rewriting</h3>
+      <p>
+        LLM rewrites the query before its submitted to the retriever<br />
+        We will setup a seperate LLM as query rewriter
+      </p>
+      <pre><code>Example:
+User's Prompt:     // Example of Messy Prompt
+  I was out walking my dog, a beautiful black pammarian dog named Ranu, when she raced away from me and yanked on her 
+  leash while I was holding it.
+  3 days later my shoulder is still numb and my finders are all pins and needles. What's going on?
+
+                  |--------------------|                            |-----------|
+Messy Prompt ->   | Query Rewriter LLM | ->  Optimized Prompt  ->   | Retriever |
+                  |--------------------|                            |-----------|
+
+Optimized Prompt:
+    Experienced a sudden, forceful pull on the shoulder, resulting in persistent shoulder numbness and finder numbness 
+    for 3 days. What are potential causes or diagnosis, such as neuropathy or nerve impingement?</code></pre>
+
+      <h3>2. Named Entity Recognization</h3>
+      <p>
+        This is used for recognizing categories of information in the query. Eg:
+        Places, Characters, Dates, people etc.<br />
+        This retrieved information can be provided to retrieval to get matching
+        documents
+      </p>
+      <pre><code>
+User's Query:
+      I read the Great Gatsby by F. Scott Fitzgerald last summer while visting New York. 
+      Are there any similar books set in the 1920s that I might enjoy?
+
+Entities: Person, books, location, dates, actors, characters
+
+                  Entities
+                    \/
+                  |------------|
+Messy Prompt ->   | GLINER LLM | ->  Labelled Prompt
+                  |------------|
+
+Labelled Prompt:
+      I read (The Great Gatsbay BOOK) by (F Scott Fitzgerald PERSON) last summer while visiting (New York LOCATION).
+      Are there any similar books set in the (1920s DATE) that I might enjoy?
+    </code></pre>
+
+      <h3>3. Hypothetical Document Embeddings (HyDeE)</h3>
+      <p>
+        This generates a hypothetical document from User's prompt and then that
+        hypothetical document is compared against the documents by retriever and
+        which is used to provide response to the user
+      </p>
+      <pre><code>
+User's Prompt: 
+
+                 |----------|
+User Prompt ->   | HyDE LLM | ->  Hypothetical Document -> |Embedding LLM| -> [0.1, 0.94, 0.45]
+                 |----------|                                                 embdedding of document
+      </code></pre>
     </article>
     <script src="/scripts/prism.js"></script>
   </body>

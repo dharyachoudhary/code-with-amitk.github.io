@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>Trait Rust</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Languages/Programming/Rust/Trait" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/Rust/Trait"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <!-- Add any necessary CSS and JavaScript files -->
@@ -27,25 +30,13 @@
     <aside class="sidebar">
       <!--See .sidebar in styles.css-->
       <a href="#what">What</a>
-      <a href="#dec">Declaration & Definition</a>
-      <ul>
-        <li><a href="#user">User Defined Traits</a></li>
-        <ul>
-          <li><a href="#arg">Traits as fun arg</a></li>
-          <li><a href="#ret">Returning trait from fun</a></li>
-        </ul>
-        <li><a href="Rust Provided Triats/">Rust Lib provided Traits</a></li>
-      </ul>
       <a href="#bound">Trait Bound</a>
-      <ul>
-        <li><a href="#usingplus">Using +</a></li>
-        <li><a href="#usingwhere">Using where</a></li>
-      </ul>
+      <a href="#usingplus">Taking 2 or more Traits</a>
       <b><a href="Rust Provided Triats/">Rust Lib provided Traits</a></b>
     </aside>
 
     <article style="margin-left: 200px">
-      <h2 id="triat">What is Triat in Rust</h2>
+      <h1 id="triat">Trait/Interface in Rust</h1>
       <p>
         Interface/class in Rust(declared with keyword trait) having
         <a
@@ -53,67 +44,58 @@
           >Virtual Functions(not pure Virtual)</a
         >
         declared or defined inside it. These functions are
-        implemented(overridden) on type.
+        implemented(overridden) on type.<br />
+        A trait is a way to define shared behavior across different data types
       </p>
+      <pre><code class="language-css">// 1. Define the trait (the shared behavior)
+trait Speak {
+    fn make_sound(&self);             // Method signature with no body yet
+}
 
-      <h2 id="dec">Declaration & Definition</h2>
-      <dl>
-        Trait is implemented for particular types. Eg: add_to_db() function is
-        overridden for Employee, Contractor Type.
-      </dl>
+struct Dog;
+struct Cat;
+
+// 2. Implement the trait for the Dog
+impl Speak for Dog {
+    fn make_sound(&self) {
+        println!("Woof!");
+    }
+}
+
+// 3. Implement the same trait for the Cat
+impl Speak for Cat {
+    fn make_sound(&self) {
+        println!("Meow!");
+    }
+}
+
+fn main() {
+    let dog = Dog;
+    let cat = Cat;
+
+    // Both types can use the exact same method name
+    dog.make_sound(); // Prints: Woof!
+    cat.make_sound(); // Prints: Meow!
+}</code></pre>
+      <p>
+        <b>Usage of Traits</b><br />
+        Once a trait is defined, you can write generic functions that accept any
+        type, as long as it implements that trait:
+      </p>
+      <pre><code class="language-css">// This function doesn't care if you pass a Dog or a Cat, 
+// as long as it is an animal that can Speak!
+fn animal_talk(animal: &impl Speak) {
+    animal.make_sound();
+}</code></pre>
+
       <h3><a href="Rust Provided Triats/">Rust Lib provided Traits</a></h3>
-      <h3 id="user">User Defined Triats</h3>
+
+      <h2>Using Traits</h2>
       <table>
         <tr>
           <td>
-            <b>Trait Declaration</b><br />
-            <pre><code class="language-css">
-pub trait T {
-    // No need to add pub in front of function
-    // Trait methods are public by default
-    fn add(&self);
-
-    // Functions can be defined
-    // with default implementation 
-	fn test(&self) {
-	    println!("test()");
-	}
-}
-                        </code></pre>
-          </td>
-          <td>
-            <b>Type on which trait is defined</b><br />
-            <pre><code class="language-css">
-pub struct S {
-    pub x: i32,
-    pub y: i32,
-}
-                        </code></pre>
-          </td>
-          <td>
-            <b>Trait Definition</b><br />
-            <pre><code class="language-css">
-//impl triat for type
-impl T for S {
-    fn add(&self) {
-        println!("Sum: {}", self.x + self.y);
-    }
-}
-fn main() {
-    let a = S {
-        x: 1,
-        y: 2,
-    };
-    a.add();
-}
-                        </code></pre>
-          </td>
-        </tr>
-      </table>
-
-      <h4 id="arg">Passing trait as argument to function</h4>
-      <pre><code class="language-css">
-// trait T defined above
+            <h4 id="arg">Passing trait as argument to function</h4>
+            <pre><code class="language-css">// trait T defined above
 pub fn fun(t: &impl T) {
     t.test();
 }
@@ -125,55 +107,122 @@ fn main() {
     fun(&a);
 }
 $ cargo run
-test()
-            </code></pre>
-
-      <h4 id="ret">Returning trait from function</h4>
-      <pre><code class="language-css">
+test()</code></pre>
+          </td>
+          <td>
+            <h4 id="ret">Returning trait from function</h4>
+            <pre><code class="language-css">
 // trait T defined above
 // This function can return struct of type S also
-pub fn ret_trait() -> impl T {
+pub fn ret_trait() -&gt; impl T {
     S {
         x: 1,
         y: 2,
     }
 }
             </code></pre>
+          </td>
+        </tr>
+      </table>
 
-      <h2 id="bound">Trait Bound</h2>
-      <dl>
-        These are generic functions(templates) but must implement one or more
-        traits, which ensures that the type provides certain behavior or methods
-      </dl>
-      <pre><code class="language-css">
-// Trait(T) is defined above
-            //&lt; type: TraitName> (var: type)
-pub fn fun1 &lt;t: T> (item: &t) {
-    item.test();
+      <h1 id="bound">Trait Bound</h1>
+      <p>
+        Rule we put on a function or structure that tells the Rust compiler:
+        "This function should accept a data type, and the data type should
+        implement this specific trait."
+      </p>
+
+      <table>
+        <tr>
+          <td>
+            <pre><code class="language-css">// 1. Define the trait
+trait Area {
+    fn get_area(&self) -&gt; f64;
 }
-$ cargo run
-test()
-            </code></pre>
 
-      <h4 id="usingplus">Using + //Friend Function</h4>
-      <dl>
-        There can be a function which takes 2 or more traits(virtual function).
-      </dl>
-      <pre><code class="language-css">
-pub fn test &lt;T: Trait1 + Trait2> (param: &T) {
-OR
-pub fn test (param: &(impl Trait1 + Trait2) {
-            </code></pre>
+struct Square { side: f64, }
+impl Area for Square {          // Implement the trait for square
+    fn get_area(&self) -&gt; f64 {
+        self.side * self.side
+    }
+}
 
-      <h4 id="usingwhere">Using where clause //Friend Function</h4>
-      <pre><code class="language-css">
-pub fn test &lt;T: Trait1 + Triat2, U: Triat2 + Triat2>(t: &T, u: &U) -> i32 {
-OR
-pub fn test &lt;T, U>(t: &T, u: &U) -> i32
-    where T: Triat2 + Triat2
-            U: Triat2 + Triat3
+struct Circle { radius: f64, }
+impl Area for Circle {
+    fn get_area(&self) -&gt; f64 {
+        3.14159 * self.radius * self.radius
+    }
+}
+
+// Trait bound (Syntax-1)
+// variable (a) should be of type T=area
+// The `T: Area` restriction forces T to be of type that implements the Area trait.
+fn print_area &lt;T: Area&gt; (a: T) {
+	println!("{}", a.get_area())
+}
+
+fn main() {
+    let my_square = Square { side: 4.0 };
+    let my_circle = Circle { radius: 2.0 };
+
+    print_area(my_square);
+    print_area(my_circle);
+
+    // If you try to pass a string or number, COMPILE TIME Error
+    // Rust will block it because a String doesn't implement Area.
+    // print_area("hello");
+}</code></pre>
+          </td>
+          <td>
+            <b>Alternative Syntax: The where Clause</b><br />
+            When you start adding multiple trait bounds, the &lt;T: Area&gt;
+            syntax can get messy.<br />
+            Rust provides a cleaner way to write trait bounds using a
+            <font color="red">where</font> clause at the end of the function
+            signature.<br />These two lines mean the exact same thing to the
+            compiler, but the second one is often easier to read:<br />
+            <pre><code class="language-css">// Trait bound
+// Syntax-2
+// variable (a) should be of type T=area
+fn print_area1 &lt;T&gt; (a: T)
+where
+	T: Area 
 {
-            </code></pre>
+	println!("{}", a.get_area())
+}</code></pre>
+          </td>
+        </tr>
+      </table>
+
+      <h2 id="usingplus">Taking 2 or more Traits (using +)</h2>
+      <pre><code class="language-css">use std::fmt::Display;
+trait Area {
+	fn get_area(&self) -&gt; f64;
+}
+struct Square { side:f64 }
+impl Area for Square {
+	fn get_area(&self) -&gt; f64 {
+		self.side * self.side
+	}
+}
+impl Display for Square {
+	fn fmt (&self, f: &mut std::fmt::Formatter &lt;'_&gt;) -&gt; std::fmt::Result {
+		write!(f, "Square with side length {}", self.side)
+	}
+}
+
+// This function takes 2 traits
+fn print_area &lt;T&gt; (a:T) 
+where
+	T: Area + Display
+{
+	println!("{}", a);
+	println!("area: {}", a.get_area());
+}
+fn main() {
+	let sq = Square {side: 4.0};
+	print_area(sq);
+}</code></pre>
     </article>
 
     <script src="/scripts/prism.js"></script>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Polymorphism</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/C%2B%2B/Characteristics%20of%20OOPS/Polymorphism/Runtime/index.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Languages/Programming/C++/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="#what">Runtime Polymorphism?</a>
+      <a href="#vc">Virtual Constructor</a>
+      <a href="#vd">Virtual Destructor</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1>Runtime / Dynamic Polymorphism</h1>
+      <p>
+        Means Same named functions in Base & derv class & both to be accessed
+        using Base class Pointer only.<br />
+        Achieved using <a href="#vf">Virtual Function</a>
+      </p>
+
+      <h2 id="vf">Virtual function</h2>
+      <p>
+        Function prefixed with virtual keyword in base class.<br />
+        It allows the correct function to be selected at runtime based on the
+        actual object type, not just the pointer or reference type.<br />
+        <a
+          href="https://github.com/code-with-amitk/Code-examples/tree/master/Languages/Programming_Languages/c%2B%2B/Characteristics_of_OOPS/Polymorphism/Dynamic_RunTime"
+          >How vtable Works?</a
+        >
+      </p>
+
+      <pre><code class="language-cpp">#include &lt;iostream&gt;
+class Base {
+public:
+    virtual void A() {cout &lt;&lt; "Base\n";}
+};
+
+class Derv : public Base {
+public:
+    void A() override {cout &lt;&lt; "Derv\n";}
+};
+
+int main() {
+    Base* a = new Derv();
+    a-&gt;A();                      //////////// Derv::A() called runtime
+    delete a;
+}
+</code></pre>
+
+      <h1 id="vc">Virtual constructor?</h1>
+      <p>
+        There is <strong>no such thing as a virtual constructor</strong> in C++.
+        Constructors are not inherited and cannot be virtual.<br />
+        Why? Because the object does not exist yet when the constructor runs.
+        The type must already be known so that memory can be allocated and the
+        object initialized. Dynamic dispatch works only after an object exists.
+      </p>
+
+      <h1 id="vd">Virtual destructor?</h1>
+      <p>
+        A destructor declared as
+        <code>virtual</code> in the base class.<br />
+        if Base class destructor is not virtual, it will not be called<br />
+        if some deletion is present in base class that will not be deleted
+      </p>
+      <table>
+        <tr>
+          <th>Base Destructor not called</th>
+          <th>
+            Base Destructor called Due to <font color="red">virtual</font>
+          </th>
+        </tr>
+        <tr>
+          <td>
+            <pre><code class="language-css">class Base{
+public:
+  ~Base(){ cout &lt;&lt; "~Base";  }      //Base class dtr not virtual
+};
+class Derv:public Base{
+public:
+  ~Derv(){ cout &lt;&lt; "~Derv"; }
+};
+int main(){
+  Base *p = new Derv();
+  delete p;
+}
+$ ./a.out
+~Derv           // ~Base not called</code></pre>
+          </td>
+          <td>
+            <pre><code class="language-css">class Base{
+public:
+  virtual ~Base(){ cout &lt;&lt; "~Base";  }
+};
+class Derv:public Base{
+public:
+  ~Derv(){ cout &lt;&lt; "~Derv"; }
+};
+int main(){
+  Base *p = new Derv();
+  delete p;
+}
+$ ./a.out
+~Derv
+~Base           // ~Base called</code></pre>
+          </td>
+        </tr>
+      </table>
+    </article>
+    <script src="/scripts/prism.js"></script>
+  </body>
+</html>

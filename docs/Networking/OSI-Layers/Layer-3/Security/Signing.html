@@ -2,8 +2,11 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Signing</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Networking/OSI-Layers/Layer-3/Security/Signing.html" />
+    <title>Signing / Digital Signatures</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Networking/OSI-Layers/Layer-3/Security/Signing.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
   </head>
@@ -38,52 +41,29 @@
     </aside>
 
     <article style="margin-left: 200px">
-      <h2 id="signing">What is Signing / Digital Signatures</h2>
+      <h1 id="signing">Digital Signatures / Signing</h1>
       <p>
-        This is NOT Hash encrypted by PVT-KEY.<br />
-        it is a another hash value which is generated using SIGNING FUNCTION<br />
-        <b>Use of Digital Signature?</b><br />
-        - DS verifies the authenticity and integrity of a digital message or
-        document<br />
-        - SHA-256 hash is a one-way mathematical function that converts data
-        into a fixed string also to check data integrity or changes.
+        Hash value which is generated using SIGNING FUNCTION<br />
+        <b>Used for Non-repudiation</b>:<br />
+        &ensp; Non repudiation means party involved in a transaction or
+        communication cannot deny their authorship of a message<br />
+        &ensp; Sender creates Hash(eg: SHA-256) of document and then encrypts
+        using pvt key<br />
+        &ensp; Recipient uses the sender's public key to decrypt the signature
+        and get hash<br />
+        &ensp; Recipient calculates Hash(SHA-256) of document and compares
       </p>
 
-      <pre><code>h = hash (sha256(message))
+      <pre><code class="language-css">hash = sha256(message)
 d = Private key
 e = public key
 n = public exponent
 
-Signature(S) = (h pow(d))mod n  //Sender sends S
+We can think, Digital Signature = Encrypt(Hash(message))
+
+Exact Formula:
+Digital Signature(S) = (h pow(d))mod n  //Sender sends S
 h = (S pow(e))mod n   //Reciever calculate hash</code></pre>
-
-      <pre><code class="language-css">
-Sender
-message > [sha256] -> hash(h1)
-                        \/
-              [SigningFunction(RSA)] > Digital-Signature
-                        /\
-                      Pvt-key
-
-          Sender ---------- h1, Digital-Signature ------> Reciever
-
-                                                DS --> [VerifyFunction] --> h2
-                                                            /\
-                                                            publickey
-
-                                                        if (h1 == h2)
-                                                          Integrity verified
-
-// Sender
-SigningFunction(messageToBeSigned, PvtKey, PublicExponent) {
-  return digitalSignature=Hash
-}
-
-// Receiver
-VerifyFunction (RecieveddigitalSignature, PublicKey, PublicExponent) {
-  return Hash
-}
-    </code></pre>
 
       <h2 id="algo">Algorithms for Generating DS</h2>
       <h3>1. DSA(DIGITAL SIGNATURE ALGO)</h3>

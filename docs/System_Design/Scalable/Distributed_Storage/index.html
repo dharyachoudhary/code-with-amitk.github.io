@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Distributed Storage Design</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Scalable/Distributed_Logging"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+    <link rel="stylesheet" href="/css/mermaid.css" />
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/System_Design/Scalable/">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar"></aside>
+
+    <main style="margin-left: 200px">
+      <article>
+        <h1 id="overview">Distributed Storage / Google Drive</h1>
+        <p>
+          Data can be stored on multiple nodes:<br />
+          1. Large file is broken into chunks/blocks and those chunks are stored
+          across multiple nodes.<br />
+          2. Number of files exceed to be stored on 1 system, those are stored
+          on different nodes 3. Replication: Each chunk/file may also be
+          replicated on multiple nodes (e.g., 3 replicas) for fault tolerances
+        </p>
+
+        <h2>Requirements</h2>
+        <p>
+          <b>Functional</b><br />
+          1. When a file/chunk reaches a configured size threshold, the system
+          should place subsequent chunks on another node; the user should not
+          need to know the physical location<br />
+          2. The system should support read/write/delete operations<br />
+          3. Concurrent Writes: to the same file/chunk shouldd nnot be allowed,
+          only 1 write to succeed<br />
+          <b>Non Func</b><br />
+          1. Highly Available: The system should remain available even if a
+          storage node fails, via replication.<br />
+          2. Eventual consistency
+        </p>
+      </article>
+    </main>
+
+    <script src="/scripts/prism.js"></script>
+    <script type="module" src="/scripts/mermaid-init.js"></script>
+  </body>
+</html>

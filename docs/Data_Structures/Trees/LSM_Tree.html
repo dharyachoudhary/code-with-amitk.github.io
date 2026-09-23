@@ -37,18 +37,19 @@
       <h1 id="what">LSM Tree / Log-Structured Merge-tree?</h1>
       <p>
         Data structure optimized for write-heavy workloads.<br />
-        LSM Tree is not a traditional node-and-pointer parent-child tree
+        LSM Tree is not a traditional
+        <a href="/Data_Structures/">BTree</a> node-and-pointer parent-child tree
         structure<br />
-        LSM-Tree = (Memtables(in memory) + SSTables(on disk))<br /><br />
+        LSM-Tree = (Memtables(in memory) + SSTables(on disk))
       </p>
-      <h3>Write Data to LSM Tree?</h3>
+      <h3>Write Data in LSM Tree?</h3>
       <p>
         <b>1. MemTables(In memory/RAM)</b><br />
-        &ensp; Initially data is written to it. &ensp; When (size &gt; 64KB).
+        &ensp; 1st data is written to RAM(ie memtables). When (size &gt; 64KB).
         data is moved to Disk<br />
         <b>2. SSTables(Sorted String Table) on Disk</b><br />
-        &ensp; SSTables are immutable sorted files which store data in
-        sequential manner.
+        &ensp; SSTables are immutable sorted files stored on Disk which store
+        data in sequential manner.
       </p>
       <h3>Read Data</h3>
       <p>

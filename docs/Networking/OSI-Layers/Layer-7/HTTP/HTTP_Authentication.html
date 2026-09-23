@@ -2,8 +2,11 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>HTTP Authentication</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Networking/OSI-Layers/Layer-7/HTTP/HTTP_Authentication.html" />
+    <title>HTTP Authentication, Session Cookie</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Networking/OSI-Layers/Layer-7/HTTP/HTTP_Authentication.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <link rel="stylesheet" href="/css/mermaid.css" />
@@ -53,7 +56,7 @@
     </aside>
 
     <article style="margin-left: 200px">
-      <h2 id="what">HTTP Authentication</h2>
+      <h1 id="what">HTTP Authentication</h1>
       <p>
         In enterprise networks, a <b>Forward proxy</b> often sits between users
         and the internet. Before allowing outbound traffic, the proxy checks
@@ -74,10 +77,15 @@ sequenceDiagram
 
     participant Browser
     participant PAC
+
+    box Cloud
     participant FP as Netskope Forward Proxy<br/>eproxy-acme-corp.goskope.com:8081
     participant Auth
-    participant IdP
     participant Policy as Policy Engine
+    end
+    
+    participant IdP
+
     participant Google
 
     User->>Browser: Open browser

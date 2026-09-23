@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gartner Terms</title>
+    <title>SASE, SDWAN, SSE, CASB, SIEM</title>
     <link rel="canonical" href="https://code-with-amitk.github.io/Networking/Terms/Gartner%20Terms.html" />
     <link rel="stylesheet" href="/css/styles.css"/>
     <!-- Add any necessary CSS and JavaScript files -->
@@ -12,7 +12,8 @@
           <li><a href="/">Home</a></li>
           <li><a href="#">Our team</a></li>
           <li><a href="#">Projects</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/Networking/">Back</a></li>
           <li>
             <form id="searchForm">
                 <input type="search" id="searchInput" name="q" placeholder="Search site" />
@@ -37,37 +38,34 @@
     </aside>
 
     <div style="margin-left:200px;">
-        <h3 id="capportal">Captive Portal</h3>
-            <dd>
+        <h1 id="capportal">Captive Portal</h1>
+            <p>
                 captive portal is a web page that users must interact with before accessing a public network. 
                 It's often used by public venues that offer free Wi-Fi, such as airports, hotels, and coffee shops
-            </dd>
+            </p>
 
-        <h3 id="gartner">Gartner Given Terms</h3>
-        <h4 id="magicquadrant">Gartner Magic Quadrant</h4>
-        <dd>
+        <h1 id="gartner">Gartner Given Terms</h1>
+        <h2 id="magicquadrant">Gartner Magic Quadrant</h2>
+        <p>
             The Gartner Magic Quadrant is a research report that helps identify and assess the top 10-12 players in a specific global market<br>
             It provides a visual representation of different types of technology providers and their position in fast-growing markets.
-        </dd>
+        </p>
 
-        <h4 id="sase">SASE(Secure Access Service Edge)</h4>
-        <dd>
-            - Gartner gave SASE term in year 2019 to define networking and security capabilities into a single service sitting on cloud.
-            Providing network security at wide-area networking (WAN) delivered as a cloud service.<br>
+        <h2 id="sase">SASE(Secure Access Service Edge)</h2>
+        <p>
             - All users in branch office, home, roaming(airport) if he want to access any of cloud service()
             he will go thru SASE.<br>
             - Examples: 
             <a href="https://www.juniper.net/us/en/products/security/secure-edge.html">Juniper Secure Edge</a>, 
             <a href="https://www.zscaler.com/capabilities/secure-access-service-edge">ZScaler Zero Trust SASE</a>, 
             <a href="https://umbrella.cisco.com/info/package-comparison-and-consultation?utm_medium=search-paid&utm_source=google&utm_campaign=UMB_APJC_IN_EN_GSR_Branded_Cisco&utm_content=SIG-FY24-Q1-Umbrella-Content-product-package-comparison-download&_bt=688783193249&_bk=cisco%20umbrella&_bm=e&_bn=g&_bg=161647957401&gad_source=1&gclid=CjwKCAiAuNGuBhAkEiwAGId4aq-70lW7FCphZ340rHY8UAGdU8NGcOoKYSPv_iAVJWU_HOuJjxaQJhoCYyEQAvD_BwE">Cisco Umbrella</a>
-        </dd>
+        </p>
 
         <dl><strong>Example</strong></dl>
-        <dd>
+        <p>
         - Consider a multinational corporation(HCL Tech) with branch offices across different regions.
-        Each office requires secure access to the corporate network and cloud-based applications.<br>
-        - With SASE, security and all services delivered from cloud, allowing employees to securely connect to the corporate network and cloud applications from any location using a unified and consistent security policy
-        </dd>
+        Each office requires secure access to the corporate network(eg: Jira) and cloud-based applications(eg: google drive).
+        </p>
 
         <table>
             <tr>
@@ -207,36 +205,30 @@
             </tr>
         </table>
 
-        <h4 id="sdwan">SD-WAN (Software-Defined Wide Area Network)</h4>
-        <dd>
+        <h2 id="sdwan">SDWAN (Software-Defined Wide Area Network)</h2>
+        <p>
         <b>What?</b><br>
             - Helps organizations to connect branch offices, central office(HQ), Services on cloud in fast, cost effective way<br>
             - Uses <a href="#sdn">SDN(software defined network)</a> to separate hardware and control mechanisms.
-        </dd>
-        <dd>
+        <br>
             <b>Example</b><br> 
             - Consider a retail chain(Relaince) with numerous branch offices across the country. <br>
             - Each branch office(store) requires reliable connectivity to Central or HQ services(eg: DB) to POS devices.<br>
             - 1 solution is to use <a href="/Networking/OSI-Layers/Layer-2.5/mpls.html">MPLS</a> for connectivity 
             between stores and headquarters(But this is expensive), other is SD-WAN.<br>
             - With SD-WAN retail chain achieves cost savings, improved application performance
-        </dd>
+        </p>
         <img src="/images/sd-wan.PNG" alt="sdwan" style="width:500px;height:300px;">
 
-        <h4 id="sse">SSE (Secure Service Edge)</h4>
-        <dt><b>What?</b> 
-            Gartner gave SSE term in year 2021 to define limited scope of network security convergence including SWG, CASB, DLP, 
-            FaaS, <a href="ZTNA.html">ZTNA</a> into a single cloud native service. <br>
-        </dt>
-        <dt>
-            <b>Example</b><br>
-            - Consider a healthcare organization(Apollo) that needs to provide secure access to electronic health records (EHR).<br>
-            - Organization implements secure web gateways (SWG), next-generation firewalls (NGFW), intrusion prevention systems(IPS) into the network edge.<br>
-            - Allows organization to enforce consistent security policies, inspect and filter internet traffic, and detect and mitigate threats in real-time
-        </dt>
+        <h2 id="sse">SSE (Secure Service Edge)</h2>
+        <p><b>What?</b> 
+            Gartner gave SSE term in year 2021 to define limited scope of network security convergence<br>
+            Includes SWG, CASB, DLP, 
+            FaaS, <a href="ZTNA.html">ZTNA</a> into a single cloud native service.
+        </p>
         <img src="/images/sse-sdwan-sase.PNG" alt="sse" style="width:500px;height:300px;">
 
-        <h5>CASB, SWG, SASE</h5>
+        <h2>CASB, SWG, SASE</h2>
         <table>
             <tr>
                 <th></th>
@@ -282,36 +274,25 @@
             </tr>
         </table>
 
-        <h3 id="siem">Security information and event management(SIEM)</h3>
-        <dt>This is a Solution that helps organizations recognize and address potential security threats and vulnerabilities.<br>
+        <h2 id="siem">Security information and event management(SIEM)</h2>
+        <p>This is a Solution that helps organizations recognize and address potential security threats and vulnerabilities.<br>
             It can detect user behavior anomalies(Eg: from Active Directory event logs).<br>
             (Early Days) SIEM platforms were log management tools, They enabled real-time monitoring and analysis of security-related events.<br>
             (Present Day) SIEM software has evolved to incorporate user and entity behavior analytics (UEBA) & other advanced AI methods
             to identify anomalous behaviors and indicators of advanced threats.
-        </dt>
         <br>
-        <dl><strong><a href="https://www.ibm.com/topics/siem">How SIEM Works?</a></strong></dl>
-        <dt>1. Collect logs(from wide range of sources(on-premises and cloud environments)<br>
+        <strong><a href="https://www.ibm.com/topics/siem">How SIEM Works?</a></strong><br>
+            1. Collect logs(from wide range of sources(on-premises and cloud environments)<br>
             2. Consolidate and sort to identify threats and adhere to data compliance requirements.
-        </dt>
-        <br>
-        <dl><strong>Incident monitoring and security alerts</strong></dl>
-        <dt>
-            SIEM consolidates its analysis into a single, central dashboard where security teams monitor activity, 
-            triage alerts, identify threats and initiate response or remediation.
-        </dt>
-        <br>
-        <dl><strong>Open Source SIEM Solutions</strong></dl>
-        <dt>
-            opensearch (Java)
-        </dt>
+        </p>
 
-        <h3 id="sdn">Software Defined Networking</h3>
-        <dt>
+
+        <h1 id="sdn">Software Defined Networking</h1>
+        <p>
             Separating S/W from H/W. Routers, Switches can be controlled remotely.<br>
             <a href="#planes">Forwarding Plane(lies on Switch), Control Plane(lies on GUI)</a>.<br>
             Controlling switches routing decisions from GUI. Person does not have to go physically to control/change Switch/Router.
-        </dt>
+        </p>
         <img 
         src="//www.plantuml.com/plantuml/png/RO-noiCW54Ptdy8n_-2WMNyAfO7IfHH2fz3X8fT4QbJKjlJj6sEJ9f11y1pEyDrmLyQ1XvvAspjhqCGwlZLIZpA2QJMIvdWzyHk5GDk7uYEA2GLfwkfCzyxb0eRFhCIaSiKEraHljKRFQlHFzCNNq8i6WtzZBgqXJNYfA3icE-LuKK64PH4aNnLYen2hejmeIaBIEVIViLsUdSwPKP3aCgP9IVreU1dIbWM89PGV"
         alt="sase" style="width:500px;height:200px;">
