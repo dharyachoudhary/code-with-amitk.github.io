@@ -32,16 +32,26 @@
     </nav>
 
     <aside class="sidebar">
-      <a href="#mcp">MCP</a>
+      <a href="#mcp">MCP(Model Context Protocol)</a>
       <a href="#vs">MCP vs HTTP</a>
       <a href="#me">Message Exchange</a>
       <a href="#parsing">MCP parsing in SWG</a>
       <a href="#requestex">Common MCP Request Examples</a>
       <a href="#questions">Questions</a>
+      <a href="#terms">Terms</a>
+      <ul>
+        <li><a href="#server">MCP Server</a></li>
+        <li><a href="#client">MCP Client</a></li>
+        <li><a href="#Capabilities">Capabilities</a></li>
+        <ul>
+          <li>Tools</li>
+          <li>Resource</li>
+        </ul>
+      </ul>
     </aside>
 
     <article style="margin-left: 200px">
-      <h2 id="mcp">MCP(Model Context Protocol)</h2>
+      <h1 id="mcp">MCP(Model Context Protocol)</h1>
       <p>
         <b>What?</b> It is the opensource standard way how AI agents(like claude
         CLI) interacts & gets information from outside world(eg: github, google
@@ -478,6 +488,44 @@ Authorization: Bearer token
         commands, repo names)
 
       </p>
+
+      <h1 id="terms">Terms</h1>
+      <h3 id="server">MCP Server</h3>
+      <p>
+        A software program that runs on cloud or locally, exposing specific data, capabilities, and credentials (like API keys) 
+      </p>
+
+      <h3 id="client">MCP Client</h3>
+      <p>
+        This is <a href="/Machine Learning/Terms.html">AI Agent</a> (like Claude code cli or an AI-powered IDE Cursor) that takes human input
+        communicates with Model(using MCP Server) and provides output to user.
+      </p>
+
+      <h3 id="Capabilities">Capabilities (Primitives)</h3>
+      <h4 id="tools">Tools</h4>
+      <p>An executable function that the AI model can actively call or trigger.</p>
+      <pre><code class="language-css">os.environ["TAVILY_API_KEY"] = "XXX"
+@mcp.tool()
+def search_web(query: str) -&lt; Dict[str, Any]:
+    """Search the web for information"""
+
+    results = tavily_client.search(query)
+
+    return results</code></pre>
+
+      <h4 id="Resource">Resource</h4>
+      <p>Data source that provides context to the AI model, such file, website, DB etc</p>
+      <pre><code class="language-css">@mcp.resource("https://code-with-amitk.github.io/")
+def github_file():
+    """
+    Resource for accessing Coding, system design knowledge
+    """
+    url = f"https://code-with-amitk.github.io/"
+    try:
+        resp = get(url)
+        return resp.text
+    except Exception as e:
+        return f"Error: {str(e)}"</code></pre>
 
     </article>
     <script src="/scripts/prism.js"></script>

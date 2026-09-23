@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>Layers, Design Issues</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Networking/OSI-Layers" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Networking/OSI-Layers"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
   </head>
 
@@ -38,129 +41,108 @@
         ><br />
         <a href="./Layer-2/">Layer-2:</a> hub router switch bridge, Ping from
         Host-1 to Host-2<br />
-        <a href="./Layer-2.5">Layer-2.5</a><br />
-        &ensp; MPLS<br />
+        <a href="./Layer-2.5">Layer-2.5:</a> MPLS<br />
 
         <b>Layer-3</b><br />
-        &ensp; Protocols: <a href="Layer-3/Protocols/index.html">IP</a><br />
+        &ensp; Protocols: <a href="Layer-3/Protocols/index.html">IP</a>,
+        <a href="Layer-3/iptables.html">iptables</a><br />
 
-        &ensp; <b>Security:</b><br />
+        &ensp; <u>Security:</u><br />
         &emsp;
-        <a href="./Layer-3/Security/Integrity.html">Integrity</a><br />
-        &emsp;&emsp;
+        <a href="./Layer-3/Security/Integrity.html">Integrity</a>,
         <a href="./Layer-3/Security/Hash MAC.html"
           >Hashing (SHA256, MD5, Argon2), MAC, HMAC</a
-        ><br />
-        &emsp;&emsp;
-        <a href="./Layer-3/Security/Signing.html"
-          >Signing / Digital Signatures:</a
-        >
-        RSA, DSA, ECDSA
+        >, <a href="./Layer-3/Security/Signing.html">Digital Signatures</a>(RSA,
+        DSA, ECDSA)
         <br />
 
-        &emsp; Encryption<br />
-        &emsp;&emsp;
+        &emsp; Encryption:
         <a href="./Layer-3/Security/Encryption/Introduction.html"
-          >Introduction</a
-        >
-        Symmetric vs Asymetric Key. How safe is 256 bit Key wrt 128, ECC vs
-        Symmetric vs Asymmetric<br />
-        &emsp;&emsp;
+          >Symmetric vs Asymetric Key</a
+        >,
         <a href="./Layer-3/Security/Encryption/Symmetric.html"
-          >Symmetric Key Algos:</a
+          >Symmetric Key Algos</a
         >
-        AES, DES<br />
-        &emsp;&emsp;
+        (AES, DES),
         <a href="./Layer-3/Security/Encryption/Asymmetric.html"
-          >Asymmetric Key Algos:</a
-        >
-        DH, RSA, EC(ECDH, secp256k1)<br />
+          >Asymmetric Key Algos</a
+        >(DH, RSA, EC(ECDH, secp256k1))<br />
 
         &emsp;
         <a href="./Layer-3/Security/Build Security Libraries.html"
           >Build Libraries:</a
         >
         Botan, Openssl(build on x86, Cross Compile on ARM)<br />
-
-        &ensp; <a href="Layer-3/iptables.html">iptables</a><br />
-
-        &ensp; <b>VPN:</b><br />
-        &emsp; <a href="Layer-3/VPN/index.html">What</a><br />
         &emsp;
-        <a href="Layer-3/VPN/VPN_Tunnel.html">VPN Tunnel Establishment:</a>
-        IKE(IKEv1, IKEv2), IPSec(Modes(tunnel, transport), Headers(AH, ESP))<br />
-        &emsp; <a href="Layer-3/VPN/Terms.html">Terms:</a> DPD(Dead Peer
-        Detection), Nonce, PFS(Perfact Forward Secrecy), SA(Security
-        Association), SA, SAD, SPI<br />
-        &emsp; <a href="Layer-3/VPN/Packet_Flow.html">Packet Flow:</a> Inbound,
-        Outbound<br />
+        <a href="Layer-3/Security/Threat_Modelling.html">Threat Modelling:</a>
+        STRIDE framework<br />
         &emsp;
-        <a href="Layer-3/VPN/VPN_NAT_Traversal.html">NAT Traversal</a>
+        <a href="Layer-3/Security/DevSecOps.html">DevSecOps</a>
+        STRIDE framework<br />
+
+        &emsp; <i>VPN:</i> <a href="Layer-3/VPN/index.html">What</a>,
+        <a href="Layer-3/VPN/VPN_Tunnel.html">VPN Tunnel:</a>
+        IKEv1, IKEv2, IPSec(Modes(tunnel, transport), Headers(AH, ESP)),
+        <a href="Layer-3/VPN/Terms.html">Terms(</a> DPD(Dead Peer Detection),
+        Nonce, PFS(Perfact Forward Secrecy), SA(Security Association), SA, SAD,
+        SPI), <a href="Layer-3/VPN/Packet_Flow.html">Packet Flow(</a>Inbound,
+        Outbound),
+        <a href="Layer-3/VPN/VPN_NAT_Traversal.html">VPN NAT Traversal</a>
         <br /><br />
 
         <b>Layer-6</b>(Presentation)<br />
-        &ensp; <a href="Layer-6/SSL_TLS/Introduction.html">SSL_TLS:</a> TLS,
-        SSL, TLS vs SSL, NSS(TLS Implementation) vs Openssl<br />
-        &ensp; <a href="Layer-6/SSL_TLS/mkcert.html">mkcert</a>(Local Self
-        Signed CA(for dev testing))<br />
-        &ensp; <a href="Layer-6/SSL_TLS/Terms/index.html">Terms:</a> SNI<br />
-        &ensp; <a href="Layer-6/SSL_TLS/lets_encrypt.html">Let's Encrypt</a> Get
-        cert signed by Let's Encrypt Root CA <br /><br />
+        &ensp; <u>SSL/TLS:</u><br />
+        &emsp; <a href="Layer-6/SSL_TLS/Introduction.html">SSL vs TLS, NSS</a>,
+        <a href="Layer-6/SSL_TLS/mkcert.html">mkcert</a>,
+        <a href="Layer-6/SSL_TLS/Terms/index.html">Terms</a>(SNI),
+        <a href="Layer-6/SSL_TLS/lets_encrypt.html">Let's Encrypt Root CA</a
+        ><br />
+        &emsp;
+        <a href="Layer-6/SSL_TLS/Certificate_Exchange.html"
+          >TLS Client Server Certification Exchange</a
+        >
+        <br /><br />
 
         <b>Layer-7</b>(Application)<br />
-        &ensp; Protocols:<br />
-        &emsp; DNS:
+        &ensp; DNS:
         <a href="Layer-7/DNS/Introduction.html">Introduction</a>(Name
         resolution, Forward, Reverse lookup, Terms),
         <a href="Layer-7/DNS/DNS_Records.html">DNS Records</a>(A, AAAA, Alias,
         CAA, CNAME, MX, PTR, RR, SOA, SPF, TXT)<br />
-        &emsp; gRPC:
+        &ensp; gRPC:
         <a href="Layer-7/gRPC/Introduction.html">Introduction</a>(gRPC, gRPC vs
         REST), <a href="Layer-7/gRPC/Introduction.html">Code</a>(golang gRPC
         server & client)<br />
-
-        &emsp; <b>HTTP:</b><br />
-        &emsp;&emsp;<a href="Layer-7/HTTP/AdvDis_Features_Methods.html"
-          >Introduction:</a
-        >
-        Features, Adv, Disadv, Methods(GET,POST,PUT,DELETE)<br />
-        &emsp;&emsp;<a href="Layer-7/HTTP/HTTP Headers.html">Headers</a><br />
-        &emsp;&emsp;<a href="Layer-7/HTTP/HTTP Cookie.html">Cookies</a>(Session,
-        Domain, Stolen Cookie, Cookie Surrogate)<br />
-        &emsp;&emsp;<u>Authentication:</u><br />
-        &emsp;&emsp;&emsp;<a href="Layer-7/HTTP/HTTP_Session_Cookie.html">
-          Authenticate by IDP: </a
-        >Get session cookie<br />
-        &emsp;&emsp;&emsp;<a href="Layer-7/HTTP/HTTP Cookie.html"> Cookies</a
-        >(Session, Domain, Global, Stolen)<br />
-        &emsp;&emsp;&emsp;<a href="Layer-7/HTTP/JWT_Token.html"> JWT Token</a
-        ><br />
-        &emsp;&emsp;&emsp;<a href="Layer-7/HTTP/Refresh_Token.html">
-          Refresh Token</a
-        ><br />
-        &emsp;&emsp;<a href="Layer-7/HTTP/HTTP_Connect.html">HTTP Connect</a
-        ><br />
-
-        &emsp; <b>Authentication Procotols:</b>
+        &ensp; Authentication Procotols:
         <a href="Layer-7/Kerberos.html">Kerberos</a>,
         <a href="Layer-7/OAuth.html">OAuth</a>,
         <a href="Layer-7/">OIDC</a>(OpenID Connect),
-        <a href="/Languages/Markup/SAML">SAML</a>(Authentication procotol using
-        Markup Language)<br />
-
-        &emsp; <a href="Layer-7/MCP/">MCP(Model Context Protocol)</a><br />
-
+        <a href="/Languages/Markup/SAML">SAML</a><br />
+        &ensp; <a href="Layer-7/MCP/">MCP(Model Context Protocol)</a><br />
         &ensp; <a href="Layer-7/REST API/index.html">REST API</a><br />
-
         &ensp; WebServers: <a href="Layer-7/WebServers/Apache/">Apache</a>,
         <a href="Layer-7/WebServers/Nginx/">Ngnix</a><br />
-
         &ensp; <a href="Layer-7/LoadTestingTools.html">Load testing Tools</a
         ><br />
         &ensp;
         <a href="Layer-7/RBI Remote Browser Isolation.html"
           >RBI(Remote Browser Isolation)</a
-        >
+        ><br />
+
+        &ensp; <u>HTTP:</u><br />
+        &emsp;
+        <a href="Layer-7/HTTP/AdvDis_Features_Methods.html">Introduction(</a>
+        Methods(GET,POST,PUT,DELETE)),
+        <a href="Layer-7/HTTP/HTTP Headers.html">Headers</a>,
+        <a href="Layer-7/HTTP/HTTP Cookie.html">Cookies</a>(Session, Domain,
+        Stolen Cookie, Cookie Surrogate)<br />
+        &emsp; Authentication:
+        <a href="Layer-7/HTTP/HTTP_Authentication.html"> Authenticate by IDP:</a
+        >Get session cookie,
+        <a href="Layer-7/HTTP/HTTP Cookie.html"> Cookies</a>(Session, Domain,
+        Global, Stolen), <a href="Layer-7/HTTP/JWT_Token.html"> JWT Token</a>,
+        <a href="Layer-7/HTTP/Refresh_Token.html">Refresh Token</a>,
+        <a href="Layer-7/HTTP/HTTP_Connect.html">HTTP Connect</a><br />
       </dl>
     </article>
   </body>

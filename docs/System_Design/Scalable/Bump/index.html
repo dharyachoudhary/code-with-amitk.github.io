@@ -281,7 +281,19 @@ last_seen</code></pre>
             <pre><code>Location Privacy Permissions table
 owner_user_id | viewer_user_id | can_view | updated_at
       A       | B              | true     | ...
-      A       | C              | false    | ...</code></pre>
+      B       | A              | false    | ...
+
+SQL: Create index (owner_user_id, viewer_user_id)
+User A can view user B
+
+noSQL(ScyllaDB): Partitionkey=(owner_user_id, viewer_user_id)</code></pre>
+            <a href="/System_Design/Concepts/Databases/Terms/Indexing/"
+              >SQL database indexing</a
+            ><br />
+            <a
+              href="/System_Design/Concepts/Databases/NoSQL/Wide_Column/ScyllaDB.html"
+              >ScyllaDB</a
+            >
           </td>
           <td>
             A adds B as friend (friendship ≠ location permission)<br />

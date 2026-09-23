@@ -34,29 +34,35 @@
     <article style="margin-left: 200px">
       <h1 id="what">Seastar (C++ Async Framework)</h1>
       <p>
-        It is a C++ framework for building server to handle huge load.<br />
-        Invented in 2010. In 2015 ScyllaDB started using it
+        For building HTTP server to handle huge load. Invented in 2010. In 2015
+        ScyllaDB started using it
       </p>
 
       <h2>Architecture</h2>
       <p>
-        Multicore<br />
-        Asynchronous<br />
-        Shared nothing<br />
-        <b>Thread-per-Core (Shared-Nothing)</b> &lt;&lt;&lt;&lt;&lt;
-        <font color="red">This makes it Ultra Fast</font><br />
-        &ensp; 1 thread is allocated per CPU core. if system 10 physical CPU
-        cores, seastar will start with 10 threads. Each thread binded(CPU
-        affinity) to each core<br />
-        &ensp; Each CPU core acts as an isolated, self-contained server with its
-        own<br />
-        &emsp; RAM<br />
-        &emsp; network queue<br />
-        &emsp; disk etc.<br />
-        &ensp; This makes threads not to share memory with each other. Hence
-        <u>OS locking, context switching, IPC is completely skipped</u>
-        making it super fast.
+        Suppose machine has 1 CPU(4 cores on it)<br />
+        Seastar will create 1 thread is allocated per CPU core, ie 4 threads.
+        Each thread is binded to Core(CPU Affinity)<br />
+        Each CPU core acts as an isolated, self-contained server with its own
+        RAM, network, disk etc. This avoids Context Switching, IPC and
+        <font color="red">This makes it Ultra Fast</font>
       </p>
+      <pre><code>
+Each core has its seperate RAM partition
+
+user_id = "A" --> |Hash| = 6. 6 % 4 = 2 (Shard 2)
+
+|----------------------------Physical Machine 1 CPU (4 Cores)---------------------|
+|                                                                                 |
+| RAM |0-25|               |26-50|            |51-75|             |76-100|        |
+|       /\                    /\                /\                  /\            |
+| |---- Core 0 -----| |---- Core 1 -----| |---- Core 2 -----| |---- Core 3 -----| |
+| | Thread 0        | | Thread 1        | | Thread 2        | | Thread 3        | |
+| | Hashes ending 00| | Hashes ending 01| | Hashes ending 02| | Hashes ending 03| |
+| |-----------------| |-----------------| |-----------------| |-----------------| |
+|                                                                                 |
+|---------------------------------------------------------------------------------|
+        </code></pre>
 
       <h2>Code</h2>
       <pre><code class="language-css">#include &lt;seastar/core/app-template.hh&gt;

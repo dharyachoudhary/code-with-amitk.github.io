@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Terms</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/C%2B%2B/Design_Patterns/Resource_Acquisition_Is_Initialization.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Languages/Programming/C++/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="#what">Resource Acquisition Is Initialization (RAII)</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="what">Resource Acquisition Is Initialization (RAII)</h1>
+
+      <p>
+        It is a C++ design pattern where a resource is acquired when an object
+        is created (constructor), and the resource is released automatically
+        when the object is destroyed(destructor). ie tie resource to object
+        lifetime<br />
+        <b>Used in:</b> Smart pointer(<code>std::unique_ptr</code> and
+        <code>std::lock_guard</code>), lock_guard are RAII based<br />
+        <b>Benefits:</b>It helps prevent memory leaks, dangling pointers, and
+        unreleased file handles.
+      </p>
+
+      <h2>Example</h2>
+      <pre><code class="language-css">#include &lt;iostream&gt;
+
+class FileHandle {
+public:
+    FileHandle(const char* name) {
+        file = fopen(name, "w");
+        if (!file) {
+            throw std::runtime_error("Could not open file");
+        }
+        std::cout &lt;&lt; "File opened\n";
+    }
+
+    ~FileHandle() {
+        if (file) {
+            fclose(file);
+            std::cout &lt;&lt; "File closed automatically\n";
+        }
+    }
+
+    void write(const char* text) {
+        if (file) {
+            fputs(text, file);
+        }
+    }
+
+private:
+    FILE* file;
+};
+
+int main() {
+    FileHandle logFile("demo.txt");
+    logFile.write("Hello from RAII!\n");
+
+    return 0;
+} // destructor runs automatically here</code></pre>
+    </article>
+    <script src="/scripts/prism.js"></script>
+  </body>
+</html>

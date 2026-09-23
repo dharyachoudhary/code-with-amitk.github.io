@@ -1,0 +1,355 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Whatsapp Chat or Messaging System</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/System_Design/Scalable/Whatsapp/Chat_Messaging_System"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+    <link rel="stylesheet" href="/css/mermaid.css" />
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/System_Design/Scalable/">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="#Requirements">Requirements</a>
+      <a href="#boe">BOE</a>
+      <a href="#hld">HLD</a>
+      <ul>
+        <li><a href="#2user">2 User Design</a></li>
+        <li><a href="#scale">Scaling to 100 M</a></li>
+      </ul>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="what">Whatsapp Chat Messaging</h1>
+      <h2 id="Requirements">Requirements</h2>
+      <p>
+        <b>Functional</b> <br />
+        &ensp; 1. Two Users can send communicate using chat messages.<br />
+        &ensp; 2. Group chats supported.<br />
+        &ensp; 3. Users can see chat history<br />
+        <b>Non Functional</b><br />
+        &ensp; 1. Minimum Latency, should be near real time messaging<br />
+        &ensp; 2. Reliable. Messages should not be lost
+      </p>
+
+      <h2 id="boe">BOE</h2>
+      <p>
+        <b>DAU:</b><br />
+        - World population 7 billion<br />
+        - 20-30% actively use 210 Million<br />
+        <b>Incoming bandwidth</b><br />
+        - User sends(chat,image,video) approx(100kb/day)<br />
+        - 210Mx100K = 210,000 GB/day = 210TB<br />
+        - 5 years = 210TB x 30 x 12 x 5 = 378 PB<br />
+        - Per second = 2.4GB/sec<br />
+        <b>Storage estimates:</b><br />
+        - horizontally scalable nosql. recycled data
+      </p>
+
+      <h1 id="hld">HLD</h1>
+      <h2 id="2user">Simple 2 Users Design</h2>
+
+      <h3>User Authentication</h3>
+      <p>
+        User installs a WhatsApp messaging app on his phone, the app comes with
+        a pre-configured host name.<br />
+        When user enters his username and password and clicks on login, app gets
+        the IP address from the DNS, IP resolves to the AWS API Gateway or Nginx
+        LB.<br />
+        Password Hash travels on wire once the user is authenticated, a JWT
+        token is provided to the app, which is stored in the secure store.
+      </p>
+
+      <h3>User-A sending "Hi" to User-B</h3>
+      <p>
+        User-A finds User-B from phone contacts stored, clicks chat on the
+        WhatsApp and sends "Hi"<br />
+        <code>{src=User-A, dst=User-B, Msg=Hi, timestamp=..}</code><br />
+        HTTPS message will reach API gateway, ingestion will receive HTTP
+        message.<br />
+        Ingestion will store message on the DB.<br />
+        <code
+          >{src=User-A, dst=User-B, Msg=Hi, timestamp=.., delivered=false}</code
+        ><br />
+        Fan-out service checks the DB every 2 seconds Once it finds
+        <code>delivered=false</code> it will get ExpoPush Token from ExpoTokens
+        table and send notification(via ExpoNotification Service) to User-B
+      </p>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+sequenceDiagram
+autonumber
+
+    actor ClientA as WhatsApp Client A
+    box AWS
+        participant Gateway as API Gateway
+        participant Ingestion@{"type":"control"} as Ingestion Service
+        participant DB@{"type":"database"} as DB
+        participant FanOut@{"type":"control"} as Fan-out Service
+    end
+    participant ExpoServer as Expo Push Server
+    actor ClientB as WhatsApp Client B
+
+
+    ClientB->>ExpoServer: Register for push notifications
+    ExpoServer-->>ClientB: Return Expo Push Token
+    ClientB->>Ingestion: POST /api/v1/expo-token (Token, User-B ID)
+    Note over DB: ExpoTokens Table
+    Ingestion->>DB: Store token
+    
+    Note over ClientA: Finds User-B from contacts<br>types "Hi" & sends
+    ClientA->>Gateway: HTTPS POST Message payload<br/>{src: User-A, dst: User-B, Msg: "Hi", timestamp}
+    Gateway->>Ingestion: HTTP Payload
+    Note over DB: Message table
+    Ingestion->>DB: Insert record<br/>{src: User-A, dst: User-B, Msg: "Hi", timestamp, delivered: false}
+    Ingestion-->>Gateway: 200 OK (Message Received)
+    Gateway-->>ClientA: 200 OK (Sent)
+
+    Note over FanOut: Check DB every 2 sec
+    Note over DB: Message Table
+    FanOut->>DB: Select * from MessageTable where delivered = false
+    DB-->>FanOut: {src: User-A, dst: User-B, Msg: "Hi", ...}
+    Note over DB: Expo Token Table
+    FanOut->>DB: select from ExpoToken where dst=userB
+    DB-->>FanOut: ExpoPush Token
+    FanOut->>ExpoServer: HTTP POST expoURL {Token, URL}
+    ExpoServer-->>ClientB: Message
+</pre>
+      </div>
+
+      <h2 id="scale">Scaling to 100 M Users</h2>
+      <div class="mermaid-wrap">
+        <pre class="mermaid">
+      flowchart LR
+
+    A["User A Phone"]
+    B["User B Phone"]
+
+    GLB["Global / Regional <br>Load Balancer"]
+    API["API Gateway<br>Nginx"]
+
+    subgraph K8S["Kubernetes Cluster"]
+
+        ING["Ingress<br>Controller"]
+
+        subgraph INGEST["Message Ingestion Service"]
+        direction TB
+            I1["Pod 1"]
+            IN["Pod N"]
+            I1 ~~~ IN
+        end
+
+        RP[["Kafka / Redpanda"]]
+
+        subgraph HISTORY["Messge Storage Service"]
+        direction TB
+            H1["Pod 1"]
+            HN["Pod N"]
+            H1 ~~~ HN
+        end
+
+        subgraph FANOUT["Fanout Service"]
+        direction TB
+            F1["Pod 1"]
+            FN["Pod N"]
+            F1 ~~~ FN
+        end
+
+        MSGDB[("Message History DB<br/>ScyllaDB / Cassandra")]
+
+        REDIS[("Redis<br/>Connection Registry")]
+
+        subgraph WS["WebSocket Service"]
+        direction TB
+            W1["Pod 1"]
+            WN["Pod N"]
+            W1 ~~~ WN
+        end
+
+        subgraph NOTIFY["Notification Service"]
+        direction TB
+            N1["Pod 1"]
+            N2["Pod N"]
+            N1 ~~~ N2
+        end
+
+        DEVICE[("Device / Push Token DB")]
+    end
+
+    EXPO["Expo / FCM / APNs"]
+
+    A -->|"HTTPS POST /message"| GLB
+    GLB --> ING
+    ING --> INGEST
+
+    INGEST -->|"Topic:<br>MessageCreated"| RP
+
+    RP -->|"Topic:<br>MessageCreated"| HISTORY
+    HISTORY -->|"Store Message"| MSGDB
+
+    RP -->|"Topic:<br>MessageCreated"| FANOUT
+
+    FANOUT --> REDIS
+
+    REDIS -->|"B connection info"| FANOUT
+
+    FANOUT -->|"Online delivery"| WS
+    WS -->|"WebSocket frame"| B
+
+    FANOUT -->|"B offline"| NOTIFY
+    NOTIFY --> DEVICE
+    NOTIFY --> EXPO
+    EXPO -->|"Push notification"| B
+  </pre>
+      </div>
+
+      <h3>Sequence Diagram</h3>
+      <p>
+        <b>Topics, Partitions are created at Kafka boot</b>
+      </p>
+      <pre><code>deploy.sh
+#!/usr/bin/env bash
+BROKER="${KAFKA_BROKER:-kafka.ib.svc.cluster.local:9092}"
+create() {
+  local topic=$1 parts=$2
+  echo "Creating topic: $topic ($parts partitions)"
+  kubectl exec -n ib deploy/kafka -- \
+    rpk topic create "$topic" -p "$parts" --brokers "$BROKER" 2>/dev/null || \
+}
+create identity-events 24
+$ ./deploy/local/create-topics-local.sh</code></pre>
+    <p>
+      <b>Redpanda</b><br />
+        <a href="/System_Design/Concepts/Queues/Redpanda.html"
+          >Redpanda over kafka</a
+        >: Due to predictable latencies<br /><br>
+      <b><a
+            href="/System_Design/Concepts/Databases/NoSQL/Wide_Column/ScyllaDB.html"
+            >ScyllaDB(NoSQL DB)</a
+          ></b>
+      <br />
+        &ensp; History messages would be huge, SQL cannot scale, even messages are immutable<br>
+        &ensp; Over SQL: Because noSQL(implemented using
+        <a href="/Data_Structures/Trees/LSM_Tree.html#why">LSM Tree</a>) can
+        scale horizontally while SQL(implemented using
+        <a href="/Data_Structures/Trees/Types_of_Trees.html">BTree</a>)
+        cannot<br />
+        &ensp; Over Cassandra:
+        <a href="/Frameworks/Seastar/">Seastar Framework</a> is fast wrt Java
+        JVM<br /><br />
+
+        <b>Redis</b><br>
+        &ensp; For storage of User to connection-id mapping<br>
+        &ensp; User can connect to any pod(out of 20), fanout service should know the pod to which message to be sent
+        <br><br>
+
+        <b>Websocket vs Expo</b><br>
+        &ensp; Expo / FCM(Firebase Cloud Messaging) is used for sending notifications to device which is offline.
+        it holds the notification for 30 days<br>
+        &ensp; When device is connected, Web socket is used to send message to the mobile device.
+    </p>
+
+
+      <img
+        src="//www.plantuml.com/plantuml/png/TLHDR-Cs4BtpLmnyIj1eqwI7RGKeMCbsR3SVArZQDGe8A6XfuX2HILMad7MA_lSEAScLupI7sEQycJVlSOPVjE6rQRObuurHijckiMQCvqRLCFgciOOGucSbSGHSGyXOHN2HYufB0wDPgTQyX4jOuaOeIL_l8mkaZsDW62zWnWs-ydqc5t9JezOEI076rke7ZEuQefPeKCEuRBJ1UiI0_exgK2fgGrIGxF9CFZIb4Lwi2bThyJWxpKX82T_WH_Zv8abF4swvL8tv27yRFfx2x_ZJ2tSE57HGS8TSnWvOSCFNN2EC7aYlxM8kDFMpXqcKoIJVboMVECFeu5q6rHCwasCb9UPMiVDOcthVCamdY-HTolH7fI1LBoYXhphzlXXFJvjUuJfH-Gj-A7ELd2OyAYEUHCx_p_h7h-dYzW-6iW2wpEC1YWO3z6uiNCUktEtumG7YRycSiGYy6-h3Xx0npoYDPKOuQwZSHSMrVYsUkNu-Pwi4F496Flo-Ik4dI6m3jgXp8PEaKxSwfzgiNLd7uCDCxF0_9BE7VQd3QT_6yCXHtdJ63WBmf4Xf5tMNuqCoJJDvXtl_pFeGHEUPtF6oGV-iKaMmIhohpnUGAoa3-yzRdpCc5UbKExjs91vUoIKDHe6smaPp0P5QZp8P0gVV4V0QuQaM5DICXPRwdWJ4NvCKBdTNbzjswdGchO-g5c_k0ds8a39hCArBZUikanqyw7aOktSEq8xwC4_JE3ajpIX86BjxBGQM-DTGXmjyvwMWEKLtJHth16kw0wUCwCDC7a0LtvUA5unHxg7sk4ORwtZ_54MmrHllyw-_3ScMiG-fgaJkzq0lTtb59cCxU6v-DPQOqnaqMiYDlG7ArSuQgjkn3cez455BNrp0tt7RNV3fqpzi6OFNDnYExxgEUykkVxw6CC-neaJdauluq3y6l8-vEZVkFUeuWmxJqGuajg09QhAF37j3m1rACx3l4WeicgfqIyCitariv5EVoNIPzjQm2TtkWTQ-auTMx5Fdmt4FBS-W4y9yt6qcstbdX1YimsoQGdvuplo8kNFmUhh3KcHoi1HzaLLYLPU2c3ks8rWcZoSZa_rWNLt_aib-fBi5ZGxYWhaWQ9q7eTtsZiTTvHVARxRblm00"
+        alt="Sequence Diagram"
+        style="width: 100%; height: auto"
+      />
+      <pre class="puml" visibility: hidden>
+@startuml
+autonumber
+
+actor "User A Phone" as A
+
+participant "Global / Regional LB" as LB
+participant "API Gateway\nIngress" as API
+
+box "Kubernetes Cluster"
+    participant "Ingestion Svc\nMulti-Pod" as ING
+    participant "Storage Svc\nMulti-Pod" as HIST
+    participant "Fanout Svc\nMulti-Pod" as FAN
+    participant "Kafka / Redpanda" as RP
+    database "Message History DB\nScyllaDB" as DB
+    database "Redis\nConnection Registry" as REDIS
+    database "Expo Token DB" as DEVICE
+    participant "WebSocket Svc\nMulti-Pod" as WS
+    participant "Notification Svc\nMulti-Pod" as NOTIFY
+end box
+
+actor "User B Phone" as B
+participant "Expo Svc\nFCM" as PUSH
+
+B -> WS: Authenticate (user,passwdhash)
+WS --> B: JWT + Send ExpoToken\nWebsocket Estb
+B -> PUSH: Give ExpoToken
+PUSH --> B: ExpoToken
+B -> WS: ExpoToken
+
+WS -> DEVICE: ExpoToken for B
+WS -> REDIS: SET\nKey:(User=B)\nvalue:(pod=WS-17, conn=conn-b)
+
+note over A: A wants to send "Hi Bob"\nA and B are friends
+
+A -> LB: POST /v1/messages\nAuthorization: Bearer token\nuser=B\nmessage="Hi Bob"
+
+LB -> API: HTTPS POST /v1/messages
+API -> ING: HTTP Req
+
+note over ING: Validate JWT token\nDerive sender=A\nValidate payload
+
+ING -> ING: Create message_id=msg-789
+
+note over RP: Topic: message-created\nPartition selected using conversation_id
+ING -> RP: Topic:Msg-Created, {Payload=..}
+RP --> ING: ACK
+
+ING --> API: 202 Accepted
+API --> A: Message accepted
+
+RP -> HIST: Topic=MessageCreated
+note over HIST: Deserialize event\nValidate / deduplicate
+HIST -> DB: INSERT message
+DB --> HIST: Stored
+
+RP -> FAN: MessageCreated event
+note over FAN: Topic=MessageCreated\nUser=B
+FAN -> REDIS: GET connection:B
+REDIS --> FAN: pod=WS-17\nconn=conn-b
+FAN -> WS: DeliverMessage\nconn=conn-b\nmessage_id=msg\nsender=A123\n"Hi Bob"
+WS -> B: Message=Hi\nsrc=A
+B --> WS: ACK
+
+@enduml
+      </pre>
+      
+    </article>
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/common.js"></script>
+    <script type="module" src="/scripts/mermaid-init.js"></script>
+  </body>
+</html>

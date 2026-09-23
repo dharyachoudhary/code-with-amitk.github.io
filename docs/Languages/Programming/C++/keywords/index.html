@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Keywords: mutable</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/C%2B%2B/keywords"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Languages/Programming/C++/">Back</a></li>
+        <li>
+          <form>
+            <input type="search" name="q" placeholder="Search site" />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <a href="mutable">mutable</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h2 id="mutable">Mutable</h2>
+      <p>
+        This lets you modify a class member variable inside a const member
+        function or on a const object<br />
+        const method asks compiler that it will not change any part of the
+        object. If we mark a variable as mutable, we tell the compiler that this
+        specific data member can be changed inside const function/object
+      </p>
+      <table>
+        <tr>
+          <td>
+            <pre><code class="language-css">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class A {
+private:
+    int var;          
+
+public:
+    A(int v) : var(v) {}
+
+    void fun() const {
+        var++;            &lt;&lt;&lt;&lt; member variable cannot change inside mutable function
+    }
+};
+
+int main() {
+    const A ObjA(0);
+    
+    ObjA.fun();
+    return 0;
+}
+$ g++ test.cpp
+error: increment of member 'A::var' in read-only object</code></pre>
+          </td>
+          <td>
+            <b>Mutable variable can be changed inside const Function</b><br />
+            <pre><code class="language-css">#include &lt;iostream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+class A {
+private:
+    mutable int var;    &lt;&lt;&lt;&lt; Mutable can be changed inside const function
+
+public:
+    A(int v) : var(v) {}
+
+    void fun() const {   // A const member function
+        var++;
+    }
+};
+
+int main() {
+    const A ObjA(0);
+    
+    ObjA.fun();
+    return 0;
+}</code></pre>
+          </td>
+        </tr>
+      </table>
+    </article>
+    <script src="/scripts/prism.js"></script>
+  </body>
+</html>

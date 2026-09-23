@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Sharding</title>
+    <title>Sharding / Partitioning</title>
     <link
       rel="canonical"
       href="https://code-with-amitk.github.io/System_Design/Concepts/Databases/DB_Scaling/Sharding"
@@ -18,6 +18,7 @@
         <li><a href="#">Our team</a></li>
         <li><a href="#">Projects</a></li>
         <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/System_Design/Concepts/Databases/">Back</a></li>
         <li>
           <form id="searchForm">
             <input
@@ -34,10 +35,11 @@
 
     <aside class="sidebar">
       <a href="#what">What</a>
-      <a href="#when">When to use Sharding</a>
-      <a href="#how">How App Server interacts with shards</a>
-      <a href="#issues">Issues in Sharding</a>
+      <ul>
+        <li><a href="#issues">Issues in Sharding</a></li>
+      </ul>
       <a href="#scalablity">Sharding=Scalabilty?</a>
+      <a href="#how">How App Server interacts with shards</a>
       <a href="#partitioningwithreplication">Sharding with Replication</a>
       <a href="#typesofsharding">Types of Sharding</a>
     </aside>
@@ -50,17 +52,11 @@
           parts called shards. Each shard shares the same schema, though the
           actual data on each shard is unique to the shard.<br /><br />
 
-          <b>When to use Sharding</b><br />
-          <u>1. Huge data stored in DB:</u> if data stored in DB is so huge that
-          i exceeds capacity of 1 DB <br />
-          <u>2. High traffic to application:</u> Application experience high
-          query loads, sharding will balance the load across multiple database
-          instances<br /><br />
-
-          <b>How App Server interacts with shards?</b><br />
-          Application calculates which shard to query based on a predefined
-          sharding key(Hash e.g., user ID, geographic location). Application
-          must implement logic to route requests to the appropriate shard<br /><br />
+          <b>Why Patitioning is needed?</b><br />
+          To spread the data and the query load evenly across nodes/shards.<br />
+          For a system having 10 shards, If every node takes a equal share, then
+          a system will handle 10 times the read and write throughput compared
+          to 1 node system.<br /><br />
 
           <b>Advantages of Sharding:</b><br />
           <u>1. Scalability:</u> Sharding allows horizontal scaling by
@@ -70,9 +66,41 @@
           be executed in parallel, reducing response times and improving overall
           performance.<br />
           <u>3. Fault Isolation:</u> If one shard experiences issues or
-          failures, it does not affect the entire system, allowing for better
-          fault tolerance and isolation of problems.<br />
-          &ensp;
+          failures, it does not affect the entire system, assuming replication
+          is also done.<br />
+        </p>
+
+        <h2 id="issues">Issues in Sharding</h2>
+        <h3>1. Hotspot. All data goes to 1 shard</h3>
+        <p>
+          <b>Problem:</b> Some partitions/shards have more data or queries than
+          others. In an extreme case, all the load could end up on 1 partition,
+          so 9 out of 10 nodes are idle<br />
+          <b>Solution:</b><br />
+          &ensp; 1. Resharding: Add more shards and redistribute data among
+          shards to balance load.<br />
+          &ensp; 2.
+          <a
+            href="https://github.com/code-with-amitk/Code-examples/blob/master/System-Design/Concepts/Hashing/README.md"
+            target="_blank"
+            >Consistent Hashing</a
+          >
+        </p>
+
+        <h3>2. Distributed Join</h3>
+        <p>
+          It is hard to perform join operations across database shards.
+          Complexities<br />
+          <u>1. Scatter-Gather Overhead:</u> To join data that lives on
+          different shards, the application must issue multiple independent
+          queries across network boundaries, drastically increasing latency<br />
+          <u>2. Fetching, Filtering, Gathering:</u> After fetching data from
+          multiple shards, the application needs to filter and gather the
+          relevant information, adding additional complexity and overhead.<br />
+          <u>3. Distributed Transactions:</u> Ensuring consistency across
+          multiple shards during writes or complex updates requires expensive
+          distributed transaction protocols like Two-Phase Commit (2PC), which
+          heavily penalize throughput.
         </p>
 
         <h1>Sharding/Partition key</h1>
@@ -116,38 +144,6 @@
           side.<br />
           Application 1st calculates the shardId then using Diesel(or other)
           explicitly communicates to database shards
-        </p>
-
-        <h1 id="issues">Issues in Sharding</h1>
-        <h3>1. Shard Exhaustion (Hotspot key problem)</h3>
-        <p>
-          Problem: Certain shards might experience shard exhaustion faster than
-          others due to uneven data distribution<br />
-          Solution:<br />
-          &ensp; 1. Resharding: Add more shards and redistribute data among
-          shards to balance load.<br />
-          &ensp; 2.
-          <a
-            href="https://github.com/code-with-amitk/Code-examples/blob/master/System-Design/Concepts/Hashing/README.md"
-            target="_blank"
-            >Consistent Hashing</a
-          >
-        </p>
-
-        <h3>2. Distributed Join</h3>
-        <p>
-          It is hard to perform join operations across database shards.
-          Complexities<br />
-          <u>1. Scatter-Gather Overhead:</u> To join data that lives on
-          different shards, the application must issue multiple independent
-          queries across network boundaries, drastically increasing latency<br />
-          <u>2. Fetching, Filtering, Gathering:</u> After fetching data from
-          multiple shards, the application needs to filter and gather the
-          relevant information, adding additional complexity and overhead.<br />
-          <u>3. Distributed Transactions:</u> Ensuring consistency across
-          multiple shards during writes or complex updates requires expensive
-          distributed transaction protocols like Two-Phase Commit (2PC), which
-          heavily penalize throughput.
         </p>
       </article>
     </main>

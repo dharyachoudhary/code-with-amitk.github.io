@@ -1,0 +1,135 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Reading GPU Stats Intel (ze_loader.dll)</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Motherboard/GPU/Intel/Read_GPU_Stats.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <!-- Add any necessary CSS and JavaScript files -->
+  </head>
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Motherboard/">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <!--See .sidebar in styles.css-->
+      <a href="#ze_loader">ze_loader.dll?</a>
+      <a href="#code">C example</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="ze_loader">ze_Loader.dll(Intel Level 0 API)?</h1>
+      <p>
+        This is Windows dll (c:/users/windows/ze_loader.dll) that loads the
+        Level Zero driver and exposes the GPU runtime APIs to C/C++ programs.<br />
+        Temperature, fan speed, power usage, memory info, and utilization are
+        fetched through Level Zero and Level Zero System Management (ZES) API
+        calls.<br />
+        A program can call functions like
+        <code>zeInit</code>, enumerate devices, and then use the ZES APIs to
+        read system metrics
+      </p>
+
+      <h2 id="code">Example C code</h2>
+      <pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;ze_api.h&gt;
+#include &lt;zes_api.h&gt;
+
+int main(void) {
+    uint32_t driverCount = 0;
+    uint32_t deviceCount = 0;
+    zes_driver_handle_t *drivers = NULL;
+    zes_device_handle_t *devices = NULL;
+    zes_temp_handle_t *temps = NULL;
+    uint32_t tempCount = 0;
+
+    // Initialize runtime
+    ze_result_t zres = zeInit(0);
+    if (zres != ZE_RESULT_SUCCESS) {
+        printf("zeInit failed: %d\n", zres);
+        return 1;
+    }
+
+    // Enumerate Intel drivers
+    zres = zesInit(0);
+    if (zres != ZE_RESULT_SUCCESS) {
+        printf("zesInit failed: %d\n", zres);
+        return 1;
+    }
+
+    zres = zesDriverGet(&driverCount, NULL);
+    if (zres != ZE_RESULT_SUCCESS || driverCount == 0) {
+        printf("No Intel drivers found.\n");
+        return 1;
+    }
+
+    drivers = (zes_driver_handle_t *)calloc(driverCount, sizeof(zes_driver_handle_t));
+    zres = zesDriverGet(&driverCount, drivers);
+    if (zres != ZE_RESULT_SUCCESS) {
+        printf("zesDriverGet failed: %d\n", zres);
+        return 1;
+    }
+
+    // Enumerate devices for the first driver
+    zres = zesDeviceGet(drivers[0], &deviceCount, NULL);
+    if (zres != ZE_RESULT_SUCCESS || deviceCount == 0) {
+        printf("No devices found.\n");
+        return 1;
+    }
+
+    devices = (zes_device_handle_t *)calloc(deviceCount, sizeof(zes_device_handle_t));
+    zres = zesDeviceGet(drivers[0], &deviceCount, devices);
+    if (zres != ZE_RESULT_SUCCESS) {
+        printf("zesDeviceGet failed: %d\n", zres);
+        return 1;
+    }
+
+    // Query temperature sensors
+    zres = zesDeviceEnumTemperatureSensors(devices[0], &tempCount, NULL);
+    if (zres == ZE_RESULT_SUCCESS && tempCount > 0) {
+        temps = (zes_temp_handle_t *)calloc(tempCount, sizeof(zes_temp_handle_t));
+        zres = zesDeviceEnumTemperatureSensors(devices[0], &tempCount, temps);
+        if (zres == ZE_RESULT_SUCCESS) {
+            for (uint32_t i = 0; i &lt; tempCount; ++i) {
+                float tempC = 0.0f;
+                zesTemperatureGet(temps[i], &tempC);
+                printf("GPU temp sensor %u: %.2f C\n", i, tempC);
+            }
+        }
+    }
+
+    // Additional values can be queried similarly:
+    // - fan speed with zesDeviceEnumFans / zesFanGetSpeed
+    // - power with zesDeviceEnumPowerDomains / zesPowerGetEnergyCounter
+    // - memory/usage with device properties and runtime queries
+
+    free(drivers);
+    free(devices);
+    free(temps);
+    return 0;
+}</code></pre>
+    </article>
+  </body>
+</html>

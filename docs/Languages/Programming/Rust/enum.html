@@ -1,8 +1,11 @@
 <!doctype html>
 <html>
   <head>
-    <title>Rust enum</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Languages/Programming/Rust/enum.html" />
+    <title>Rust enum, Option</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/Rust/enum.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <!-- Add any necessary CSS and JavaScript files -->
@@ -32,7 +35,7 @@
         <li><a href="#not">Not holding data</a></li>
         <li><a href="#hold">holding data</a></li>
       </ul>
-      <a href="#option">Option Enum = NULL</a>
+      <a href="#option">Option&lt;T&gt;</a>
     </aside>
 
     <article style="margin-left: 200px">
@@ -196,81 +199,75 @@ IPv6 IPv6(
 Disconnected NoIP
             </code></pre>
 
-      <h2 id="option">Option Enum = NULL</h2>
+      <h1 id="option">Option &lt;T&gt;</h1>
       <p>
-        The Option enum in Rust is a built-in generic type used to represent a
-        value that may or may not be present.<br />
-        Because <b>Rust does not have a null value</b> like many other
-        programming languages, it relies on the Option type to safely encode the
-        concept of "nothingness" without risking null pointer<br /><br />
-        <b>Usage of Option Enum:</b>
-        Preventing Null Pointer Exceptions: In other languages, forgetting to
-        check for null can crash your application at runtime. Rust forces you to
-        acknowledge the None variant via the compiler, guaranteeing safety.
+        Option&lt;T&gt; is a built-in enum used to represent a value that may or
+        may not be present.<br />
+        Because Rust does not have null values like many other programming
+        languages, it relies on Option&lt;T&gt; to safely handle the potential
+        absence of data at compile time, eliminating the risk of null-pointer
+        exceptions.<br /><br />
+        It can have 2 values<br />
+        &ensp; Some(T): Encloses a valid value of type T.<br />
+        &ensp; None: Represents the absence of a value
       </p>
-      <table>
-        <tr>
-          <td>
-            Syntax<br />
-            <pre><code class="language-css">
-pub enum Option&lt;T&gt; {
+      <pre><code class="language-css">pub enum Option&lt;T&gt; {
     Some(T), // Contains a value of type T
     None,    // Represents the absence of a value
+}</code></pre>
+
+      <h3>How to get inner value of Option</h3>
+      <table>
+        <tr>
+          <th>Pattern Matching (match) Most robust way</th>
+          <th>if let (Handling Only one case)</th>
+          <th>unwrap_or</th>
+          <th>unwrap() {AVOIDED}</th>
+          <th>? Operator (Early Return)</th>
+        </tr>
+        <tr>
+          <td>
+            <pre><code class="language-css">let some_score: Option &lt;i32&gt; = Some(95);
+match some_score {
+    Some(score) =&gt; println!("score: {}", score),
+    None =&gt; println!("No score recorded"),
+}</code></pre>
+          </td>
+          <td>
+            <pre><code class="language-css">let item: Option &lt;String&gt; = 
+              Some(String::from("Sword"));
+
+if let Some(weapon) = item {
+    println!("Equipped: {}", weapon);
 }
-      </code></pre>
+// None is not handled</code></pre>
+          </td>
+          <td>
+            <pre><code class="language-css">let a: Option &lt;i32&gt; = None;
+let b = a.unwrap_or(2); // Falls back to 2</code></pre>
           </td>
           <td>
             <pre><code class="language-css">
-fn divide(numerator: f64, denominator: f64) -&gt;&gt;Option&lt;f64&gt; {
-    if denominator == 0.0 {
-        None // Division by zero is impossible, return "nothing"
-    } else {
-        Some(numerator / denominator) // Return the calculated value wrapped in Some
-    }
-}
-fn main() {
-    let result1 = divide(10.0, 2.0);
-    let result2 = divide(10.0, 0.0);
-
-    // Handling result1 using a match statement
-    match result1 {
-        Some(value) =&gt; println!("Success! The result is: {}", value),
-        None &gt; println!("Error: Cannot divide by zero!"),
-    }
-}
-            </code></pre>
+// We can violently pull the value out using 
+// .unwrap() or .expect().
+// However, if the variant is None,program crash
+let value = Some("Safe").unwrap(); // Works fine
+</code></pre>
+          </td>
+          <td>
+            <pre><code class="language-css">
+// If you are inside a function that returns an Option, 
+// you can append the ? operator to an Option value. 
+// If the value is Some, it extracts the inner data 
+// and continues; if it is None, it immediately 
+// returns None from the entire function.
+fn fun() -&gt; Option &lt;String&gt; {
+    let t = test()?; // Returns early if None
+    ...
+}</code></pre>
           </td>
         </tr>
       </table>
-
-      <pre><code class="language-css">
-enum Option &lt;T&gt; {        //T is template which can take any type: i32, i64 etc
-    Some (T),
-    None,
-}
-
-1. Initializing and using Option &lt;T>
-fn main() {
-    let a : Option &lt;i32&gt; = Some(2);
-    let b : Option &lt;i32&gt; = None;
-
-    println! ("a:{:#?}",a);
-    println! ("b:{:#?}",b);
-}    
-$ ./main.exe
-a : Some(
-    2,
-)     
-b : None
-
-2. Option &lt;T&gt; cannot be added to non-Option &lt;T>
-fn main() {
-    let x: i8 = 5;
-    let y: Option &lt;i8&gt; = Some(5);
-
-    let sum = x + y;                //Compliation Error
-}    
-            </code></pre>
 
       <h3 id="nullmistake">Creating NULL was mistake?</h3>
       <p>

@@ -27,18 +27,48 @@ function getPageTitle(filePath, htmlContent) {
     }
 }
 
-function getPageExcerpt(htmlContent, maxLength = 150) {
+function getPageExcerpt(htmlContent, maxLength = 180) {
     try {
-        const text = htmlContent
+        const contentHtml =
+            htmlContent.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ||
+            htmlContent.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1] ||
+            htmlContent;
+
+        const text = contentHtml
             .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
             .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+            .replace(/<nav\b[^>]*>[\s\S]*?<\/nav>/gi, ' ')
+            .replace(/<header\b[^>]*>[\s\S]*?<\/header>/gi, ' ')
             .replace(/<[^>]+>/g, ' ')
             .replace(/\s+/g, ' ')
-            .trim()
-            .substring(0, maxLength);
-        return text + (text.length === maxLength ? '...' : '');
+            .trim();
+
+        if (!text) return '';
+        return text.length > maxLength ? text.substring(0, maxLength).trim() + '...' : text;
     } catch (e) {
         return '';
+    }
+}
+
+function getPageHeadings(htmlContent) {
+    try {
+        const headingMatches = [...htmlContent.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)];
+
+        const headings = headingMatches
+            .map((match) => {
+                const text = match[2]
+                    .replace(/<[^>]+>/g, ' ')
+                    .replace(/&nbsp;/gi, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+                return text;
+            })
+            .filter(Boolean);
+
+        return headings.filter((heading, index) => headings.indexOf(heading) === index);
+    } catch (e) {
+        return [];
     }
 }
 
@@ -55,9 +85,10 @@ function generateSearchIndex() {
                 const title = getPageTitle(filePath, html);
                 const url = getRelativeUrl(filePath);
                 const excerpt = getPageExcerpt(html);
+                const headings = getPageHeadings(html);
 
                 if (title && url) {
-                    searchIndex.push({ title, url, excerpt });
+                    searchIndex.push({ title, url, excerpt, headings });
                     fileCount += 1;
                     console.log(`  ✓ ${title} (${url})`);
                 }
@@ -78,4 +109,13 @@ function generateSearchIndex() {
     }
 }
 
-generateSearchIndex();
+if (require.main === module) {
+    generateSearchIndex();
+}
+
+module.exports = {
+    getPageTitle,
+    getPageExcerpt,
+    getPageHeadings,
+    generateSearchIndex,
+};

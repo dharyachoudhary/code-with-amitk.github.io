@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>Tests in Rust</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Languages/Programming/Rust/Automated%20Tests.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/Rust/Automated%20Tests.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
     <!-- Add any necessary CSS and JavaScript files -->
@@ -29,11 +32,8 @@
       <a href="#what">Automated Tests</a>
       <ul>
         Examples
-        <li><a href="#sim">Simple Function</a></li>
+        <li><a href="#ex">Simple Function</a></li>
         <li><a href="#mod">Modules for Test</a></li>
-        <li><a href="#name">Run Test by name</a></li>
-        <li><a href="#ignore">Ignore some tests</a></li>
-        <li><a href="#async">async function tests</a></li>
       </ul>
       <a href="#unit">Unit Tests</a>
       <a href="#integration">Integration Tests</a>
@@ -49,8 +49,14 @@
       </p>
 
       <h2 id="ex">Examples</h2>
-      <h3 id="sim">Simple Function</h3>
-      <pre><code class="language-css">
+      <table>
+        <tr>
+          <th>Simple Function</th>
+          <th>Async Function</th>
+        </tr>
+        <tr>
+          <td>
+            <pre><code class="language-css">
 fn greater_than_ten(a:u32) -&gt; bool {
     if a &lt; 10 {
         return true;
@@ -58,96 +64,27 @@ fn greater_than_ten(a:u32) -&gt; bool {
     false
 }
 
-#[test]                                  //Functions preceded by attribute #[test] is a test function
+//Functions preceded by attribute #[test] is a test function
+#[test]
 fn test1(){
-    assert!(greater_than_ten(5));       //assert!(false) will assert
+    //assert!(false) will assert
+    assert!(greater_than_ten(5));
 }
 
-$ cargo test
-running 1 test
-test test ... FAILED
+#[test]
+#[ignore]                       //ignore attribute will not run the test.
+fn expensive_test() {
+    ..
+}
 
-failures:
----- test stdout ----
-thread 'test' panicked at src/lib.rs:12:5:
-assertion failed: greater_than_10(5)
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+$ cargo test                        // Calling all modules together
+$ cargo test --test file-name       // Run all tests in file
+$ cargo test function-name          // Execute 1 test function
+$ cargo test -- --ignored           // Only run ignored tests
             </code></pre>
-
-      <h3 id="mod">Modules for Test</h3>
-      <pre><code class="language-css">
-fn greater_than_10 (a: i32) -&gt; bool {
-    if a &lt; 10 {
-        return true;
-    }
-    false
-}
-mod all_tests {
-    use super::*;
-    
-    #[test]
-    fn test() {
-        assert!(greater_than_10(5));    // assert!(false) will assert
-        assert!(greater_than_10(15));
-    }
-}
-$ cargo test
-            </code></pre>
-
-      <h3 id="name">Run test by name</h3>
-      <pre><code class="language-css">
-fn greater_than_10 (a: i32) -&gt; bool {
-    if a &lt; 10 {
-        return true;
-    }
-    false
-}
-mod all_tests {
-    use super::*;
-    
-    #[test]
-    fn test1() {
-        assert!(greater_than_10(15));
-    }
-    #[test]
-    fn test2() {
-        // assert!(false) will assert
-        assert!(greater_than_10(52));
-    }
-}
-$ cargo test test1          //Will only run test=test1
-$ cargo test               //Will run all test cases having one in them
-            </code></pre>
-
-      <h3 id="ignore">Ignore some tests</h3>
-      <dl>Some tests should not run</dl>
-      <pre><code class="language-css">
-fn greater_than_10 (a: i32) -&gt; bool {
-    if a &lt; 10 {
-        return true;
-    }
-    false
-}
-mod all_tests {
-    use super::*;
-    
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-    
-    #[test]
-    #[ignore]                       //ignore attribute will not run the test.
-    fn expensive_test() {
-        ..
-    }
-}
-$ cargo test
-$ cargo test -- --ignored             // If we want to run only the ignored tests
-            </code></pre>
-
-      <h3 id="async">async function tests</h3>
-      <pre><code class="language-css">
+          </td>
+          <td>
+            <pre><code class="language-css">
 # Cargo.toml
 [package]
 name = "async_test"
@@ -171,6 +108,29 @@ mod tests {
     #[actix_rt::test]
     async fn fun_test() {
         assert_eq!(fun("a").await, "Hello".to_string());
+    }
+}
+$ cargo test
+            </code></pre>
+          </td>
+        </tr>
+      </table>
+
+      <h3 id="mod">Modules for Test</h3>
+      <pre><code class="language-css">
+fn greater_than_10 (a: i32) -&gt; bool {
+    if a &lt; 10 {
+        return true;
+    }
+    false
+}
+mod all_tests {
+    use super::*;
+    
+    #[test]
+    fn test() {
+        assert!(greater_than_10(5));    // assert!(false) will assert
+        assert!(greater_than_10(15));
     }
 }
 $ cargo test

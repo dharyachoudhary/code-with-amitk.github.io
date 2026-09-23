@@ -40,27 +40,33 @@
       </ul>
       <a href="#slmodels">Supervised Learning Model</a>
       <ul>
-        <li>
-          <a href="#regression">Regressions</a>
+        <li>Regression</li>
+        <ul>
+          <li>Linear</li>
+          <li>Logistic</li>
+          <li>Decision Tree</li>
           <ul>
-            <li><a href="#linearregression">Linear</a></li>
-            <li><a href="#LogisticRegression">Logistic</a></li>
-            <li><a href="#dtr">Decision Tree</a></li>
-            <ul>
-              <li><a href="#RandomForestRegression">Random Forest</a></li>
-            </ul>
+            <li>Random Forest</li>
           </ul>
-        </li>
-        <li>
-          <a href="#classifiers">Classifiers</a>
-          <ul>
-            <li><a href="#dtc">Decision Tree</a></li>
-          </ul>
-        </li>
+        </ul>
+        <li>Classifier</li>
+        <ul>
+          <li>Binary</li>
+          <li>Multiclass</li>
+        </ul>
       </ul>
       <a href="#un">Unsupervised Learning Model</a>
       <ul>
-        <li><a href="clustering">Clustering</a></li>
+        <li>Clustering</li>
+      </ul>
+      <a href="#algorithms">Algorithms</a>
+      <ul>
+        <li><a href="#knn">KNN</a></li>
+        <li><a href="#ann">ANN</a></li>
+        <ul>
+          <li>1. Navigable Small World</li>
+          <li>2. Hierarchial Navigable Small World</li>
+        </ul>
       </ul>
     </aside>
 
@@ -560,6 +566,94 @@ else:
               alt="trie"
               style="width: 500px; height: 150px"
             />
+          </td>
+        </tr>
+      </table>
+
+      <h1 id="algorithms">Algorithms</h1>
+      <h2 id="knn">1. KNN (K Nearest Neighbors). O(n)</h2>
+      <p>
+        <a href="/Machine%20Learning/RAG/Searches_in_RAG.html#semantic"
+          >Keyword search & Semantic Search</a
+        >
+        is KNN algorithm for
+        <a href="/Machine%20Learning/RAG/Introduction.html">RAG pipeline's</a>
+        retriver. But KNN works in O(n) Complexity, ie it finds User's query
+        embedding with 1:1 comparsion with log entries embeddings & will not
+        scale if there are 1 billion entries. In this case we need to compare
+        user query's embedding with all 1 billion log entries embedding. <br />
+        And everytime there will be Billion comparisons.<br />
+        Hence production retrievers use ANN
+      </p>
+
+      <h2 id="ann">2. ANN(Approximate Nearest Neighbours)</h2>
+      <p>
+        ANN does not gurantee to find closest document to the query string, but
+        can find very close by.
+      </p>
+
+      <h3 id="nsw">2.1 Navigable Small World (NSW)</h3>
+      <table>
+        <tr>
+          <td>
+            <img
+              src="/images/Machine_Learning/RAG/Navigable_Small_World.png"
+              alt="Navigable small world"
+              style="width: 100%; height: auto"
+            />
+          </td>
+          <td>
+            <b>How it works?</b><br />
+            - Every document is represented by a
+            <a href="/Machine Learning/Terms.html#Embedding">embedding</a> in
+            <a href="/Machine%20Learning/Terms.html#EmbeddingSpace"
+              >embedding space</a
+            ><br />
+            - It creates a GRAPH called PROXIMITY GRAPH, where every document's
+            embedding is placed as 1 node<br />
+            - Every node in graph is connected to its nearest neighbour<br />
+            - When a user's query is received it embedding is calculated<br />
+            - A RANDOM candidate node(on proximity graph) is choosen, now
+            algorithm looks at closest neighbours of candidate node and find
+            closesness to user's query embedding and finds which of them is
+            closest to prompt vector<br />
+            - Since there are very few neighbours to choose from, whichever is
+            closest becomes the new candidate. Now process repeats for the new
+            candidate<br />
+            - Process continues until none of neighbours is closest to the
+            current candidate and candidate vector is returned.<br />
+            - With small modification this approach can return multiple closest
+            vectors<br />
+            - Proximity graph can be computed before recieving any user prompt
+          </td>
+        </tr>
+      </table>
+
+      <h3 id="hnsw">2.2 Hierarchial Navigable Small World (HNSW). O(logn)</h3>
+      <table>
+        <tr>
+          <td>
+            <img
+              src="/images/Machine_Learning/RAG/Hierarchial_Navigable_Small_World.png"
+              alt="Hierarchial Navigable small world"
+              style="width: 100%; height: auto"
+            />
+          </td>
+          <td>
+            <b>How it works?</b><br />
+            - It creates Hierarchail proximity graphs<br />
+            - <u>Layer-1 Proximity Graph:</u> Contains all nodes on graph as
+            created in <a href="#nsw">Navigable Small World</a><br />
+            - <u>Layer-2 Proximity Graph:</u> Randomly drop to only 100 vectors
+            and build proximity graph for intermidiate navigation<br />
+            - <u>Layer-3 Proximity Graph:</u> Randomly drop to just 10 vectors
+            and build proximity graph<br />
+            - Search begins in Layer-3. Algorithm chooses a RANDOM candidate in
+            layer-3 graph and find searches closest to prompt(user query)
+            vector<br />
+            - Search goes to Layer-2 and finds best candidates in layer 2<br />
+            - Search goes to Layer-3 and finds best candidates in layer 3<br />
+            - HNSW is very fast wrt KNN
           </td>
         </tr>
       </table>

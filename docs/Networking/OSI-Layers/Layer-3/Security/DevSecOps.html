@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>DevSecOps, SAST, SonarQube, CodeQL, Trivy, Grype</title>
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Networking/OSI-Layers/Layer-3/Security/DevSecOps.html"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/prism.css" />
+  </head>
+
+  <body>
+    <nav class="navbar">
+      <!--See .navbar in styles.css-->
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="#">Our team</a></li>
+        <li><a href="#">Projects</a></li>
+        <li><a href="/contact.html">Contact</a></li>
+        <li><a href="/Networking/OSI-Layers">Back</a></li>
+        <li>
+          <form id="searchForm">
+            <input
+              type="search"
+              id="searchInput"
+              name="q"
+              placeholder="Search site"
+            />
+            <input type="submit" value="Go!" />
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <aside class="sidebar">
+      <!--See .sidebar in styles.css-->
+      <a href="#what">DevSecOps</a>
+      <a href="#scanning">Scanning Secret at different Stages</a>
+    </aside>
+
+    <article style="margin-left: 200px">
+      <h1 id="what">DevSecOps (Development, Security, and Operations)</h1>
+      <p>
+        Practice of adding Automated Security checks into every single stage(<b
+          >Code Writing&gt; Build &gt; SecurityAudit &gt; Deploy</b
+        >) of the software development lifecycle, rather than waiting until the
+        software is completely built, tested and then Security Audit Team finds
+        leaked secrets<br />
+        What would be checked:<br />
+        - API Keys, secrets, Credit Cards, Bank Details, Internal Documents
+
+        <b>Shift-Left Philosophy</b><br />
+        &ensp; <u>Old Approach(Traditional):</u> Code Writing &gt; Testing &gt;
+        Security Auditing(Find security issues) &gt; Code(Now it becomes
+        difficult to add patches for security)<br />
+        &ensp; <u>New Approach(DevSecOps):</u> Moving security audits from the
+        final phase of delivery to the beginning of the development cycle.
+        Security is enforced at every stage.
+      </p>
+
+      <h1 id="scanning">Scanning Secret at different Stages</h1>
+      <h2>1. Coding Stage (Writing code in vscode)</h2>
+      <p>
+        <b>1. VS Code Extensions</b><br />
+        &emsp; a. GitGurdian: key pattern(AWS keys, OpenAI API tokens, database
+        URIs) scanner<br />
+        &emsp; b. TruffleHog: Regex scanner for hardcoded secrets<br /><br />
+
+        <b>2 .gitignore:</b> Add files which need not to be committed to git<br /><br />
+
+        <b>git pre commit hooks:</b> On git commit check the secrets
+      </p>
+
+      <h2>2. In transit / <code>git push</code></h2>
+      <p>
+        When developer does git push, code travels on wire<br />
+        SSE/SASE solutions will check TSS/DLP/PCI (Payment Card Industry)
+        content<br />
+        Block the content
+      </p>
+
+      <h2>
+        3. Build Stage(GitHub Actions, GitLab CI, Azure Pipelines, or Jenkins)
+      </h2>
+      <p>
+        <b>Server-Side Git Hooks (github, gitlab):</b><br />
+        &ensp; Server side credentials checks<br /><br />
+
+        <b>Automated Secret Detection Jobs:</b><br />
+        &ensp; <code>gitleaks detect --verbose</code> to evaluate modified
+        files<br /><br />
+
+        <b>Static Application Security Testing (SAST)</b><br />
+        &ensp; Tools like(SonarQube, Semgrep, CodeQL) inspect source ASTs
+        (Abstract Syntax Trees)<br />
+        &ensp; Finds issues like password = "abc", api_key = "123", insecure
+        hardcoded connection strings, or unencrypted local configuration
+        files.<br /><br />
+
+        <b>Dependency & Supply Chain Security (SCA):</b><br />
+        &ensp; During build steps (e.g., npm install or pip install), Software
+        Composition Analysis (SCA) tools evaluate third-party dependencies<br /><br />
+
+        <b>Build Output & Artifact Sanitization</b><br />
+        &ensp; Build systems enforce guardrails to prevent secrets from leaking
+        in compiler outputs or logs. Replace secret values with ***<br /><br />
+
+        <b>Container Image Scanning</b><br />
+        &ensp; Scanners like Trivy, Grype, or Docker Scout inspect produced
+        container images that developers didn't accidentally copy private SSH
+        keys, .env files, or .pem certificates into the final runtime image
+      </p>
+
+      <h2>4. Artifact Repository (JFrog Artifactory, AWS ECR, Docker hub)</h2>
+      <p>
+        At this stage, we are protecting binaries, container images, .jar/.tar
+        archives, and dependency packages
+      </p>
+    </article>
+    <script src="/scripts/prism.js"></script>
+    <script src="/scripts/common.js"></script>
+  </body>
+</html>

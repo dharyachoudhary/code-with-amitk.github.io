@@ -45,16 +45,13 @@
         <table>
           <tr>
             <th style="width: 10%"></th>
-            <th style="width: 45%">SQL</th>
-            <th style="width: 45%">NoSQL</th>
+            <th style="width: 35%">SQL</th>
+            <th style="width: 55%">NoSQL</th>
           </tr>
           <tr>
             <td>Types</td>
             <td></td>
-            <td>
-              Columnar: <a href="NoSQL/Column Oriented DB/">What</a><br />
-              GraphDB: <a href="NoSQL/Graph DB/">What, Cypher</a>
-            </td>
+            <td></td>
           </tr>
           <tr>
             <td>Example</td>
@@ -84,18 +81,61 @@
             <td>
               <table>
                 <tr>
-                  <td>Document Oriented</td>
+                  <th>Database</th>
+                  <th>Date model</th>
+                  <th>Storage Method</th>
+                  <th>Example</th>
+                </tr>
+                <tr>
+                  <td>Document</td>
+                  <td>json, xml</td>
+                  <td>B-Trees, <a href="/Data_Structures/">B+ Trees</a></td>
+                  <td>Mongodb, <a href="./NoSQL/Couchbase/">couchdb</a></td>
+                </tr>
+                <tr>
+                  <td>Wide Column</td>
+                  <td></td>
+                  <td><a href="/Data_Structures/">LSM Trees</a></td>
                   <td>
-                    Couchbase(<a href="NoSQL/Couchbase/Introduction.html"
-                      >Introduction</a
-                    >, <a href="NoSQL/Couchbase/N1QL.html">N1QL</a>)
+                    <a href="NoSQL/Wide_Column/Cassandra.html">Cassandra</a>,
+                    <a href="NoSQL/Wide_Column/ScyllaDB.html">ScyllaDB</a>,
+                    HBase, Google Bigtable
                   </td>
                 </tr>
                 <tr>
-                  <td>Wide Coloumn</td>
                   <td>
-                    <a href="NoSQL/Wide_Column/ScyllaDB.html">Cassandra</a>,
-                    <a href="NoSQL/Wide_Column/ScyllaDB.html">ScyllaDB</a>
+                    <a href="NoSQL/Column_Oriented">Columnar</a> / Column
+                    Oriented
+                  </td>
+                  <td></td>
+                  <td></td>
+                  <td>Apache Kudu, MonetDB, InfiniDB</td>
+                </tr>
+                <tr>
+                  <td>Key-Value</td>
+                  <td></td>
+                  <td>HashMap(RAM), LSM Trees(Disk)</td>
+                  <td>Redis, Amazon DynamoDB</td>
+                </tr>
+                <tr>
+                  <td>Time-Series</td>
+                  <td>Time-stamped metrics and events</td>
+                  <td>LSM Trees, Columnar Compression</td>
+                  <td>InfluxDB, TimescaleDB, QuestDB</td>
+                </tr>
+                <tr>
+                  <td><a href="NoSQL/Graph DB/">Graph</a></td>
+                  <td>Graphs</td>
+                  <td>Index-Free Adjacency</td>
+                  <td>Neo4j, Amazon Neptune</td>
+                </tr>
+                <tr>
+                  <td>Vector</td>
+                  <td><a href="/Machine Learning/Terms.html">Embeddings</a></td>
+                  <td>HNSW, IVF (Inverted File Index)</td>
+                  <td>
+                    Pinecone, Milvus, Qdrant,
+                    <a href="Vector_Database/Weaviate.html">Weaviate</a>
                   </td>
                 </tr>
               </table>
@@ -108,8 +148,10 @@
           </tr>
         </table>
         <dl>
-          <a href="./DB_Scaling/">DB Scaling: </a>Replication, Federation,
-          Sharding <br />
+          <b>DB Scaling:</b> <a href="DB_Scaling/Replication/">Replication</a>,
+          <a href="DB_Scaling/Federation/">Federation</a>,
+          <a href="DB_Scaling/Sharding/">Sharding/Partitioning</a>
+          <br />
           <a href="DB_Schema/" target="_blank">DB Schema</a><br /><br />
 
           <b>Terms:</b><br />

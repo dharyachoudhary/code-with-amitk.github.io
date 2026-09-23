@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <title>Rust Macros</title>
-    <link rel="canonical" href="https://code-with-amitk.github.io/Languages/Programming/Rust/macros/Introduction.html" />
+    <link
+      rel="canonical"
+      href="https://code-with-amitk.github.io/Languages/Programming/Rust/macros/Introduction.html"
+    />
     <link rel="stylesheet" href="/css/styles.css" />
     <link rel="stylesheet" href="/css/prism.css" />
   </head>
@@ -229,13 +232,23 @@ fn main(){
 
       <h2 id="derive">3. Derive macro (built-in / library)</h2>
       <p>
-        Attach <code>#[derive(...)]</code> to a type; the compiler calls a proc
-        macro that implements a <a href="../Trait/">trait</a> for you.<br />
-        <code>Debug</code>, <code>Clone</code> are standard derives from Rust
-        (and some from crates like <code>serde</code> for
-        <code>Serialize</code>).<br /><br />
-        struct is annotated using #[derive(MyMacro)] and function is preceded by
-        #[proc_macro_derive]
+        Derive macros in Rust are tools that automatically generate code to
+        implement traits for your custom structs or enums
+      </p>
+      <h4>Standard Library Provided</h4>
+      <p>
+        <b>Debug:</b> Allows your type to be printed using the :? format
+        specifier inside macros like println!.<br />
+        <b>Clone:</b> Creates a duplicate of your type by calling .clone(),
+        meaning data can be duplicated.<br />
+        <b>Copy:</b> Bitwise-copy of variables instead of moved.<br />
+        &ensp;
+        <a href="/Languages/Programming/Rust/Trait/Rust%20Provided%20Triats/"
+          >Clone vs Copy</a
+        ><br />
+        <b>PartialEq:</b> Comparisons using == and != operators to check if two
+        instances are equal or not.<br />
+        <b>Eq:</b> Lets you use the type as a key in collections like HashMap.
       </p>
       <pre><code class="language-rust">#[derive(Debug, Clone, PartialEq)]
 struct Point {
@@ -250,6 +263,25 @@ fn main() {
     assert_eq!(p, q);
 }
 </code></pre>
+
+      <h4>serde Provided</h4>
+      <p>
+        <b>serde::Serialize:</b> Convert type into data formats like JSON.<br />
+        <b>serde::Deserialize:</b> Build type back from formats like JSON.
+      </p>
+      <pre><code class="language-rust">use serde::Serialize;
+#[derive(Serialize, Deserialize)]
+struct User {
+    name: String,
+    age: u32,
+}
+
+fn main() {
+    let u = User { name: "Alice".into(), age: 30 };
+    let json_string = serde_json::to_string(&u).unwrap();
+    println!("{}", json_string); // Output: {"name":"Alice","age":30}
+
+}</code></pre>
 
       <h2 id="custom-derive">4. Custom derive macro (concept)</h2>
       <p>

@@ -489,15 +489,14 @@ Healthy(80)	      10	            70            // out of 80
       </table>
 
       <h2>Recall, Precision, Accuracy, False Positive Rate</h2>
+      <p>
+        <a href="RAG/Introduction.html#quality">Recall, Precision for RAG</a>
+      </p>
       <table>
         <tr>
           <th>Metric</th>
           <th>Formula</th>
-          <th>Question it Answers</th>
-          <th>Simple Analogy</th>
-          <th>Use When...</th>
-          <th>Avoid When...</th>
-          <th>Memory Trick</th>
+          <th>Description</th>
         </tr>
 
         <tr>
@@ -506,26 +505,6 @@ Healthy(80)	      10	            70            // out of 80
             <code>(TP + TN) / (TP + TN + FP + FN)</code>
           </td>
           <td>Out of all predictions, how many were correct?</td>
-          <td>
-            Exam score.<br />
-            "Out of 100 questions, how many did I answer correctly?"
-          </td>
-          <td>
-            <ul>
-              <li>Balanced dataset</li>
-              <li>Both mistake types (FP & FN) have similar cost</li>
-              <li>General model evaluation</li>
-            </ul>
-          </td>
-          <td>
-            <ul>
-              <li>Imbalanced datasets</li>
-              <li>Rare events (fraud, cancer, spam)</li>
-            </ul>
-          </td>
-          <td>
-            <b>Overall correctness</b>
-          </td>
         </tr>
 
         <tr>
@@ -534,51 +513,36 @@ Healthy(80)	      10	            70            // out of 80
             <code>TP / (TP + FN)</code>
           </td>
           <td>Out of all actual positives, how many did I detect?</td>
-          <td>
-            Police catching criminals.<br />
-            Did we catch all criminals?
-          </td>
-          <td>
-            <ul>
-              <li>Cancer detection</li>
-              <li>Fraud detection</li>
-              <li>Fire alarms</li>
-              <li>Cyber attacks</li>
-              <li>Intrusion detection</li>
-            </ul>
-          </td>
-          <td>When false alarms are more expensive than missing cases.</td>
-          <td>
-            <b>Don't miss real positives.</b><br />
-            High Recall = Few False Negatives.
-          </td>
         </tr>
 
         <tr>
-          <td><b>Precision</b></td>
+          <td><b>Precision @ K</b></td>
           <td>
-            <code>TP / (TP + FP)</code>
+            K = Number of nearest documents we want to retrieve to User's Query
+            embeddings<br /><br />
+            <code
+              >Precision = TP / (TP + FP)<br />
+              Precision = Relevant Documents Retrived/Total Documents
+              Retrieved</code
+            >
           </td>
           <td>
-            Out of everything predicted positive, how many were actually
-            positive?
-          </td>
-          <td>
-            Police arrests.<br />
-            If someone is arrested, are they actually a criminal?
-          </td>
-          <td>
-            <ul>
-              <li>Spam filtering</li>
-              <li>Search engines</li>
-              <li>Face recognition</li>
-              <li>Recommendation systems</li>
-            </ul>
-          </td>
-          <td>When missing positives is much worse than false alarms.</td>
-          <td>
-            <b>When I say YES, I should be right.</b><br />
-            High Precision = Few False Positives.
+            Suppose there is a RAG pipeline for answering user's firewall log
+            Queries. We input 1 million log files to RAG pipeline. We wanted top
+            100 nearest log files to User's query embedding. <b>(k=100)</b
+            ><br />
+            RAG retriever returned 100 documents mentioning the nearest to
+            User's query (using cosine similarity).<br />
+            When we compared these 100 documents to ground truth(ie Actual logs
+            referring User's query), we found only 40 are Truly near to User's
+            Query embedding, that means TP=40.<br />
+            While 60 are not near to User's query embeddings but falsly provided
+            by retriever(ie 60 is False positive).
+            <a
+              href="https://github.com/code-with-amitk/Code-examples/blob/master/Machine_Learning/RAG_Pipeline/Code/Evaluating_RAGPipeline_Recall_Precision"
+              >Code</a
+            ><br /><br />
+            Hence Precision = 40 / (40+60)
           </td>
         </tr>
 
@@ -590,25 +554,6 @@ Healthy(80)	      10	            70            // out of 80
           <td>
             Out of all actual negatives, how many did I wrongly classify as
             positive?
-          </td>
-          <td>
-            Airport security.<br />
-            How many innocent passengers triggered the alarm?
-          </td>
-          <td>
-            <ul>
-              <li>Airport security</li>
-              <li>Bank fraud alerts</li>
-              <li>Medical screening</li>
-              <li>Authentication systems</li>
-            </ul>
-          </td>
-          <td>
-            When actual negatives are extremely few (metric becomes unstable).
-          </td>
-          <td>
-            <b>False Alarm Rate.</b><br />
-            Lower is always better.
           </td>
         </tr>
       </table>
@@ -828,7 +773,7 @@ optimizer = SGD(learning_rate=0.01, momentum=0.9)
         "fast-food-ness", "sweetness".
       </p>
       <pre><code>Food	      "fast-food-ness"       "sweetness"
-Pizza        0.9                    0.1                       //[0.9, 0.1] &lt; These 2 numbers are called embeddings
+Pizza        0.9                    0.1            //[0.9, 0.1] &lt; These 2 numbers are called embeddings(high-dimensional numerical vector)
 Burger       0.95                   0.05
 Salad        0.1                    0.0
 Ice cream    0.2                    0.95</code></pre>
@@ -840,40 +785,40 @@ Ice cream    0.2                    0.95</code></pre>
         &ensp; <code>Pizza → [0.9, 0.1], Burger → [0.95, 0.05]</code> These
         points are very close. Hence: Pizza ≈ Burger<br />
         &ensp; <code>Pizza → [0.9, 0.1], Ice cream → [0.2, 0.95]</code> These
-        are far apart. Therefore: Pizza ≠ Ice cream
+        are far apart. Therefore: Pizza ≠ Ice cream<br />
+        Vector embeddings convert words and sentences into positions in vector
+        space where same meaning words/sentences are placed closer to each other
+        in Embedding space.
       </p>
 
-      <h2>How emdeddings(numbers) are calculated?</h2>
-      <h3>
-        Method 1 — Dimensionality reduction. Eg: PCA (Principal Component
-        Analysis)
-      </h3>
+      <h2>
+        How emdeddings/floats are calculated / How embedding model is trained?
+      </h2>
       <p>
-        Start with lots of numbers and mathematically compress them into fewer
-        numbers.<br />
-        Suppose foods using 100 features(fastfoodness, sweetness, breadiness,
-        cheesiness ..)
+        Embeddings are found during traning of neural network.<br />
+        Weights, bias(gradient desent) & backpropagation are adjusted to similar
+        words together and make dissimilar words apart<br />
+        Weights, biases are adjusted millions of times in Neural network
       </p>
-      <pre><code>Pizza → [0, 1, 0, 1, 1, 0, 0, ... 100 numbers]
-Model will compress these to smaller dimension
-100 dimensions
-       ↓
-      PCA
-       ↓
-3 dimensions
-Pizza → [0.8, 0.2, 0.1]</code></pre>
+      <h3>Contrastive Training</h3>
+      <p>
+        Contrastive training teaches a model by showing it groups of items: a
+        matching pair (positive pair) and a mismatching pair (negative pair)<br />
+        Positive Pair: Two items that mean the same thing or belong together<br />
+        Negative Pair: One item paired with a completely unrelated item<br />
+        The Goal: Loss function measures the distance between the vectors. Model
+        is rewarded when positive pairs end up closer and model is punished when
+        negative pairs are closer or positive pairs are far apart.
+      </p>
+      <pre><code>(Puppy, Dog) = Positive Pair
+(Puppy, Car) = Negative Pair
 
-      <h3>Method 2 — Neural Network learn the embedding</h3>
-      <p>
-        Add a embedding layer in neural network, this layer will find embeddings
-        during training<br />
-        <b>But embeddings are learned in training?</b> Adjusting weights and
-        bias(gradient desent) & backpropagation.
-      </p>
-      <pre><code>
-                              |--- Embedding Layer ----|      |---- Other Layers -----|
-"Hot dog" --> [0,1,0,0,0] --> | 2.98, -0.75, 0.00      | ---> |                       |---> Prediction
-                              |------------------------|      |-----------------------|</code></pre>
+How Training happens?
+- Untrained model sprays words randomly across the map. 
+- Puppy is placed at(1, 5), Dog(8, 2), Car(2, 5)
+- Distance between "Puppy" and "Dog" is large (the model gets a penalty)
+- Model tweaks its internal weights to pull "Puppy" and "Dog" closer to each other 
+</code></pre>
 
       <h2 id="EmbeddingSpace">Embedding Space</h2>
       <p>
@@ -881,7 +826,12 @@ Pizza → [0.8, 0.2, 0.1]</code></pre>
         points/vectors<br />
         if we plot above embeddings on graph, it is called embedding space.<br />
         Real embedding spaces may have
-        <font color="red">256, 512, 1024 or more dimensions</font>
+        <font color="red">2Billion or more dimensions</font><br />
+        Ollama's embedding model(nomic-embed-text) has 768 dimension. Hence
+        every word is represented by array of 768 floats<br />
+        But 768 or more dimensions of a word is very tough visualize<br />
+        <b>PCA (Principal Component Analysis)</b> is the technique to reduce
+        dimensionailty of embedding to 2.
       </p>
       <pre><code>              Sweetness
                  ↑
